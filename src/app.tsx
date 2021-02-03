@@ -5,19 +5,23 @@ import './utils/reset.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import {store} from './store';
 import {ToastContainer} from 'react-toastify';
-import { UseWalletProvider } from 'use-wallet';
 import {Routes} from '~/routes';
-import {CONFIG} from '~/config';
+import {Web3ReactProvider} from '@web3-react/core';
+import {providers} from 'ethers';
 
+
+function getLibrary(provider: providers.ExternalProvider) {
+  return (new providers.Web3Provider(provider)).getSigner(0);
+}
 
 const App = () => {
   return (
-    <UseWalletProvider chainId={CONFIG.chainId}>
+    <Web3ReactProvider getLibrary={getLibrary}>
       <Provider store={store}>
         <Routes/>
         <ToastContainer/>
       </Provider>
-    </UseWalletProvider>
+    </Web3ReactProvider>
   );
 };
 

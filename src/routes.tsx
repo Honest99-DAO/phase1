@@ -1,7 +1,5 @@
 import {history} from '~/store';
 import {Redirect, Route, Switch} from 'react-router';
-import {DaoDefaultPage} from '~/pages/DaoDefaultPage';
-import {DaoRouterPage} from '~/pages/DaoRouterPage';
 import {ConnectedRouter} from 'connected-react-router';
 import {h} from 'preact';
 import {isWalletConnected} from '~/utils/common';
@@ -13,10 +11,10 @@ import {ConnectWalletPage} from '~/pages/ConnectWalletPage';
 
 export function Routes() {
   const connectedId = isWalletConnected();
-  const wallet = useWallet();
+/*  const wallet = useWallet();
   if (wallet.status == 'disconnected' && connectedId != null) {
     wallet.connect(connectedId)
-  }
+  }*/
 
   return (
     <ConnectedRouter history={history}>
@@ -29,15 +27,6 @@ export function Routes() {
         <Route
           path='/casino/dashboard'
           render={() => <CasinoRouterPage/>}
-        />
-        <Route
-          path='/dao'
-          exact
-          render={() => <DaoDefaultPage/>}
-        />
-        <Route
-          path='/dao/dashboard'
-          render={() => <DaoRouterPage/>}
         />
         <Route
           path='/connect-wallet'

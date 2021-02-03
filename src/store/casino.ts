@@ -9,14 +9,12 @@ import {
 import {BigNumber, Signer} from 'ethers';
 import {Action, createReducer, getType} from 'deox';
 import {takeLatest} from 'redux-saga/effects';
-import {HonestCasino} from '../../types/ethers-contracts';
-import {selectCasinoSaga} from '~/store/registry';
 import {
   claimReward,
   getGuessesToday,
   getMyRecentGuess,
   getMyRecentWin,
-  getPrizeFund,
+  getPrizeFund, getPrizeMultiplier,
   getRecentWinners,
   ICasinoGuessReq,
   makeAGuess
@@ -47,6 +45,7 @@ export interface ICasinoState {
   prizeFund: IAsyncState<BigNumber>;
   guessesToday: IAsyncState<number>;
   recentWinners: IAsyncState<ICasinoWinEvent[]>;
+  prizeMultiplier: IAsyncState<number>;
 
   myRecentGuess: IAsyncState<ICasinoGuessEvent | null>;
   myRecentWin: IAsyncState<ICasinoWinEvent | null>;
@@ -59,6 +58,7 @@ export const defaultCasinoState: ICasinoState = {
   prizeFund: defaultAsyncState(),
   guessesToday: defaultAsyncState(),
   recentWinners: defaultAsyncState(),
+  prizeMultiplier: defaultAsyncState(),
   myRecentGuess: defaultAsyncState(),
   myRecentWin: defaultAsyncState(),
 
@@ -70,6 +70,7 @@ export const casinoActions = {
   getPrizeFund: createAsyncActionCreator<void, BigNumber>('casino/get-prize-fund'),
   getGuessesToday: createAsyncActionCreator<void, number>('casino/get-guesses-today'),
   getRecentWinners: createAsyncActionCreator<void, ICasinoWinEvent[]>('casino/get-recent-winners'),
+  getPrizeMultiplier: createAsyncActionCreator<void, number>('casino/get-prize-multiplier'),
 
   getMyRecentGuess: createAsyncActionCreator<Signer, ICasinoGuessEvent | null>('casino/get-my-recent-guess'),
   getMyRecentWin: createAsyncActionCreator<Signer, ICasinoWinEvent | null>('casino/get-my-recent-win'),
@@ -82,6 +83,7 @@ export const casinoReducer = createReducer(defaultCasinoState, h => [
   ...defaultAsyncReducer(h, casinoActions.getPrizeFund, 'prizeFund'),
   ...defaultAsyncReducer(h, casinoActions.getGuessesToday, 'guessesToday'),
   ...defaultAsyncReducer(h, casinoActions.getRecentWinners, 'recentWinners'),
+  ...defaultAsyncReducer(h, casinoActions.getPrizeMultiplier, 'prizeMultiplier'),
   ...defaultAsyncReducer(h, casinoActions.getMyRecentGuess, 'myRecentGuess'),
   ...defaultAsyncReducer(h, casinoActions.getMyRecentWin, 'myRecentWin'),
 
@@ -91,49 +93,39 @@ export const casinoReducer = createReducer(defaultCasinoState, h => [
 
 
 function* getCasinoPrizeFundSaga() {
-  const casino: HonestCasino = yield selectCasinoSaga();
-
-  yield defaultAsyncSaga(casinoActions.getPrizeFund, () => getPrizeFund(casino));
+  yield defaultAsyncSaga(casinoActions.getPrizeFund, getPrizeFund);
 }
 
 function* getGuessesTodaySaga() {
-  const casino: HonestCasino = yield selectCasinoSaga();
-
-  yield defaultAsyncSaga(casinoActions.getGuessesToday, () => getGuessesToday(casino));
+  yield defaultAsyncSaga(casinoActions.getGuessesToday, getGuessesToday);
 }
 
 function* getRecentWinnersSaga() {
-  const casino: HonestCasino = yield selectCasinoSaga();
+  yield defaultAsyncSaga(casinoActions.getRecentWinners, getRecentWinners);
+}
 
-  yield defaultAsyncSaga(casinoActions.getRecentWinners, () => getRecentWinners(casino));
+function* getPrizeMultiplierSaga() {
+  yield defaultAsyncSaga(casinoActions.getPrizeMultiplier, getPrizeMultiplier);
 }
 
 function* getMyRecentGuessSaga(action: Action<string, Signer>) {
-  const casino: HonestCasino = yield selectCasinoSaga();
-
-  yield defaultAsyncSaga(casinoActions.getMyRecentGuess, () => getMyRecentGuess(casino, action.payload));
+  yield defaultAsyncSaga(casinoActions.getMyRecentGuess, () => getMyRecentGuess(action.payload));
 }
 
 function* getMyRecentWinSaga(action: Action<string, Signer>) {
-  const casino: HonestCasino = yield selectCasinoSaga();
-
-  yield defaultAsyncSaga(casinoActions.getMyRecentWin, () => getMyRecentWin(casino, action.payload));
+  yield defaultAsyncSaga(casinoActions.getMyRecentWin, () => getMyRecentWin(action.payload));
 }
 
 function* guessSaga(action: Action<string, ICasinoGuessReqExt>) {
-  const casino: HonestCasino = yield selectCasinoSaga();
-
   yield defaultAsyncSaga(casinoActions.makeAGuess, async () => {
-    await makeAGuess(casino, action.payload.signer, action.payload.req);
+    await makeAGuess(action.payload.signer, action.payload.req);
     toast.info('Your bet is placed!');
   });
 }
 
 function* claimRewardSaga(action: Action<string, Signer>) {
-  const casino: HonestCasino = yield selectCasinoSaga();
-
   yield defaultAsyncSaga(casinoActions.claimReward, async () => {
-    await claimReward(casino, action.payload);
+    await claimReward(action.payload);
     toast.success('Congratulations! Check your wallet balance.');
   });
 }
@@ -142,6 +134,7 @@ export const casinoStateSagasConfig = [
   takeLatest(getType(casinoActions.getPrizeFund.start), getCasinoPrizeFundSaga),
   takeLatest(getType(casinoActions.getGuessesToday.start), getGuessesTodaySaga),
   takeLatest(getType(casinoActions.getRecentWinners.start), getRecentWinnersSaga),
+  takeLatest(getType(casinoActions.getPrizeMultiplier.start), getPrizeMultiplierSaga),
   takeLatest(getType(casinoActions.getMyRecentGuess.start), getMyRecentGuessSaga),
   takeLatest(getType(casinoActions.getMyRecentWin.start), getMyRecentWinSaga),
 

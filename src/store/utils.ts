@@ -8,6 +8,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Inputs, useEffect} from 'preact/hooks';
 import {useWallet} from 'use-wallet';
 import {providers, Signer} from 'ethers';
+import {useWeb3React} from '@web3-react/core';
 
 
 export const errorShowAction = createActionCreator('error/show', r => (e: Error) => r(e));
@@ -146,12 +147,9 @@ export function useDefaultAsyncLazyLoadSelector<REQ, RES>(
 }
 
 export function useSigner(): Signer | null {
-  const wallet = useWallet<providers.ExternalProvider>();
-  if (wallet.status != 'connected') return null;
+  const web3React = useWeb3React<Signer>();
 
-  const provider = new providers.Web3Provider(wallet.ethereum);
-
-  return provider.getSigner(0);
+  return web3React.library || null;
 }
 
 export function* putErr(action: Action<string, Error>) {

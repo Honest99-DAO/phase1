@@ -4,7 +4,6 @@ import {CasinoHeader} from '~/components/Header';
 import {BigNumber} from 'ethers';
 import {ITab, Tabs} from '~/components/Tabs';
 import {Redirect, Route, Switch} from 'react-router';
-import {DaoVotingsPage} from '~/pages/DaoVotingsPage';
 import {useDefaultAsyncLazyLoadSelector} from '~/store/utils';
 import {casinoActions} from '~/store/casino';
 import {CasinoGuessPage} from '~/pages/CasinoGuessPage';
@@ -42,7 +41,7 @@ export function CasinoRouterPage() {
         <Route
           exact
           path='/casino/dashboard/claim'
-          render={() => <DaoVotingsPage/>}
+          render={() => <p>No page</p>}
         />
         <Redirect to='/404'/>
       </Switch>

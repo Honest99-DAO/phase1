@@ -13,7 +13,7 @@
 
 
   h1 {
-    margin-top: 100px;
+    margin-top: 50px;
     font-family: $header-font;
     font-size: 36px;
     width: 100%;
@@ -22,7 +22,6 @@
 
   p {
     font-size: 16px;
-    margin-bottom: 1em;
     text-align: center;
     font-weight: lighter;
 
@@ -39,6 +38,12 @@
       text-decoration: underline;
       color: $teal;
       font-weight: 700;
+    }
+  }
+
+  .rules {
+    p {
+      margin-bottom: 0.7em;
     }
   }
 
@@ -61,6 +66,11 @@
     .walletConnectBtn {
       width: 180px;
       padding: 8px;
+    }
+
+    p {
+      margin-top: 14px;
+      font-size: 14px;
     }
   }
 

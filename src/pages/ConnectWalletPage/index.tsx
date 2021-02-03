@@ -1,43 +1,56 @@
 import {Fragment, h} from 'preact';
 import styles from './index.scss';
-import {cls, setWalletConnected} from '~/utils/common';
+import {cls} from '~/utils/common';
 import {Button} from '~/components/Button';
 import {toast} from 'react-toastify';
-import {useWallet} from 'use-wallet';
 import {Icon} from '~/components/Icon';
 import MetamaskIcon from '~/public/metamask.svg';
 import WalletConnectIcon from '~/public/walletconnect.png';
 import {useHistory} from 'react-router';
 import {Loader} from '~/components/Loader';
+import {Signer} from 'ethers';
+import {useWeb3React} from '@web3-react/core';
+import {injected, walletconnect} from '~/config';
+import {useState} from 'preact/hooks';
 
 
 export function ConnectWalletPage() {
-  const wallet = useWallet();
+  const web3React = useWeb3React<Signer>();
   const history = useHistory();
+  const [loading, setLoading] = useState(false);
+
+  const state = loading ? 'pending' : web3React.active ? 'active' : 'none';
 
   const handleOnClickMetamask = async () => {
+    setLoading(true);
+
     try {
-      await wallet.connect('injected');
+      await web3React.activate(injected);
+      toast.success('Your wallet was connected!');
+      history.goBack();
+
     } catch (e) {
       console.error(e);
-    } finally {
-      handleWalletStatus('injected');
+      toast.error('Wallet was not connected! See console.');
+
     }
+    setLoading(false);
   };
 
-  const handleWalletStatus = (type: typeof wallet.connector) => {
-    if (wallet.status == 'connected') {
-      setWalletConnected(type);
+  const handleOnClickWalletConnect = async () => {
+    setLoading(true);
+
+    try {
+      await web3React.activate(walletconnect);
       toast.success('Your wallet was connected!');
-
       history.goBack();
-    } else {
-      setWalletConnected(null);
-      toast.error('Wallet was not connected! See console.')
 
-      history.push('/');
-      console.error(wallet.error);
+    } catch (e) {
+      console.error(e);
+      toast.error('Wallet was not connected! See console.');
+
     }
+    setLoading(false);
   };
 
   return (
@@ -46,11 +59,11 @@ export function ConnectWalletPage() {
         <h2>Connect your wallet</h2>
 
         {(() => {
-          switch (wallet.status) {
-            case 'connecting':
+          switch (state) {
+            case 'pending':
               return <Loader className={styles.loader}/>;
 
-            case 'disconnected':
+            case 'none':
               return (
                 <Fragment>
                   <Button
@@ -61,7 +74,7 @@ export function ConnectWalletPage() {
                     Connect Metamask
                   </Button>
                   <Button
-                    onClick={handleOnClickMetamask}
+                    onClick={handleOnClickWalletConnect}
                     className={cls(styles.btn)}
                     icon={<Icon src={WalletConnectIcon} className={styles.metamaskIcon}/>}
                   >
@@ -73,7 +86,7 @@ export function ConnectWalletPage() {
             default:
               return (
                 <Button
-                  onClick={() => handleWalletStatus(wallet.connector)}
+                  onClick={() => history.goBack()}
                   className={cls(styles.btn)}
                 >
                   Continue

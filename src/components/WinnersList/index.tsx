@@ -15,7 +15,7 @@ export function WinnersList(props: IProps) {
     <div className={cls(styles.line, props.lineClassName)}>
       <span className={styles.address}>{shrinkAddress(line.player)}</span>
       <span className={styles.number}>{line.number}</span>
-      <span className={styles.prize}>{shrinkUnits(formatEther(line.prize), 2)} LINK</span>
+      <span className={styles.prize}>{shrinkUnits(formatEther(line.prize), 2)} ETH</span>
     </div>
   );
 

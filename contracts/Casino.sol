@@ -3,10 +3,10 @@
 pragma solidity >0.6.1 <0.7.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./additional/RegisteredWithCapital.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 
-contract HonestCasino is RegisteredWithCapital {
+contract HonestCasino is Ownable {
     using SafeMath for uint256;
 
     struct GuessEntry {
@@ -18,7 +18,8 @@ contract HonestCasino is RegisteredWithCapital {
 
     uint256 constant MAX_PRIZE = 200 ether; // fits in uint72
 
-    uint256 nonce = 0;
+    uint16 nonce = 0;
+    uint8 public prizeMultiplier = 95;
     mapping(address => GuessEntry) guesses;
 
     event Guess(address indexed guesser, uint72 bet, uint16 nonce, uint8 number);
@@ -28,24 +29,23 @@ contract HonestCasino is RegisteredWithCapital {
     }
 
     function guess(uint8 guessNumber) external payable {
-        // checking input
+        // checking inputs
         require(guessNumber < 100, "$CAS1");
         uint256 fee = msg.value / 101;
         uint256 bet = msg.value - fee;
 
-        uint256 prize = bet.mul(99);
+        uint256 prize = bet.mul(prizeMultiplier);
         require(prize <= address(this).balance / 2, "$CAS2");
         require(prize <= MAX_PRIZE, "$CAS3");
 
-        uint16 n = incNonce();
-        emit Guess(msg.sender, uint72(bet), n, guessNumber);
+        nonce++;
+        emit Guess(msg.sender, uint72(bet), nonce, guessNumber);
 
         // placing a bet
-        guesses[msg.sender] = GuessEntry(uint72(bet), n, guessNumber, uint64(block.number));
+        guesses[msg.sender] = GuessEntry(uint72(bet), nonce, guessNumber, uint64(block.number));
 
-        // sending 1% fee to the Accountant contract
-        (bool success, ) = payable(registry.getAccountant()).call{value: fee}("");
-        require(success, "$CAS7");
+        // sending 1% fee to the owner
+        payable(this.owner()).transfer(fee);
     }
 
     function claimPrize(address account) external {
@@ -56,12 +56,19 @@ contract HonestCasino is RegisteredWithCapital {
         // checking inputs
         require(entryBet > 0, "$CAS4");
 
-        uint256 prize = entryBet * 99; // we already know this can't overflow
+        uint256 prize = entryBet * prizeMultiplier; // we already know this can't overflow
         entry.bet = 0;
 
         // if there is not enough funds - give at least a half
         if (prize > address(this).balance / 2) {
             prize = address(this).balance / 2;
+        }
+
+        // if there is enough ethers in the prize fund - make the EV neutral
+        if (address(this).balance >= 400 ether && prizeMultiplier == 95) {
+            prizeMultiplier = 99;
+        } else if (address(this).balance < 400 ether && prizeMultiplier == 99) {
+            prizeMultiplier = 95;
         }
 
         // sending prize if the number is correct
@@ -73,10 +80,10 @@ contract HonestCasino is RegisteredWithCapital {
         }
     }
 
-    function __initialSetRegistry(IRegistry _registry) external {
-        require(address(registry) == Utils.EMPTY_ADDRESS, "$RGD1");
-
-        registry = _registry;
+    // in case of update
+    function migrateCapital(address nextVersion) external onlyOwner {
+        require(nextVersion != address(0), "$RWC1");
+        payable(nextVersion).transfer(address(this).balance);
     }
 
     function calculateRandomNumber(uint256 blockNumber, uint16 _nonce) internal view returns (uint256) {
@@ -84,14 +91,5 @@ contract HonestCasino is RegisteredWithCapital {
         require(block.number - blockNumber > 0, "$CAS8"); // not in the same block
 
         return uint256(keccak256(abi.encodePacked(blockhash(blockNumber), _nonce))) % 100;
-    }
-
-    function incNonce() internal returns (uint16) {
-        if (nonce < 0xffff) {
-            return uint16(nonce++);
-        } else {
-            nonce = 0;
-            return 0;
-        }
     }
 }

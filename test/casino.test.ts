@@ -2,18 +2,18 @@ import {
   assertTxThrows,
   createWallets,
   delay,
-  etherToWei,
   initialDeployment,
   parseGuess,
-} from '../utils';
+} from './utils';
 import {assert} from 'chai';
 import {formatEther, parseEther} from 'ethers/lib/utils';
+import {BigNumber} from 'ethers';
 
 
-xdescribe('Casino', () => {
+describe('Casino', () => {
   it('provides valid casino experience', async () => {
-    const [investor0, player1, player2, player3] = await createWallets();
-    const {casino, token} = await initialDeployment(investor0);
+    const [owner, player1, player2, player3] = await createWallets();
+    const {casino} = await initialDeployment(owner);
 
     const casinoPlayer1 = casino.connect(player1);
     const casinoPlayer2 = casino.connect(player2);
@@ -21,12 +21,17 @@ xdescribe('Casino', () => {
 
     const casinoBalance = await casino.provider.getBalance(casino.address);
     await assertTxThrows(
-      () => casinoPlayer1.guess(20, {value: casinoBalance.add(etherToWei(1))}),
+      () => casinoPlayer1.guess(20, {value: casinoBalance.add(parseEther('1'))}),
       'Can not bet more than casino has'
     );
 
     // transferring some balance to casino
-    await token.mint(investor0.address, {value: etherToWei(200)}).then(it => it.wait());
+    await owner.sendTransaction({value: parseEther('500'), to: casino.address}).then(it => it.wait());
+
+    const prizeMultiplier = await casino.prizeMultiplier();
+    assert(prizeMultiplier == 95, 'Invalid prize multiplier');
+
+    const expPrizeValue = parseEther('1').mul(prizeMultiplier);
 
     // players do their plays
     const rec1 = await casinoPlayer1.guess(0, {value: parseEther('1.01')}).then(it => it.wait());
@@ -44,9 +49,9 @@ xdescribe('Casino', () => {
     assert(g1.number == 0, 'number is not the same 1');
     assert(g2.number == 20, 'number is not the same 2');
     assert(g3.number == 99, 'number is not the same 3');
-    assert(g1.bet.eq(etherToWei(1)), 'bet is not the same 1');
-    assert(g2.bet.eq(etherToWei(1)), 'bet is not the same 2');
-    assert(g3.bet.eq(etherToWei(1)), 'bet is not the same 3');
+    assert(g1.bet.eq(parseEther('1')), 'bet is not the same 1');
+    assert(g2.bet.eq(parseEther('1')), 'bet is not the same 2');
+    assert(g3.bet.eq(parseEther('1')), 'bet is not the same 3');
     assert(g1.sender == player1.address, 'sender is not the same 1');
     assert(g2.sender == player2.address, 'sender is not the same 2');
     assert(g3.sender == player3.address, 'sender is not the same 3');
@@ -61,8 +66,8 @@ xdescribe('Casino', () => {
       'Should throw on > 99'
     );
     await assertTxThrows(
-      () => casinoPlayer1.guess(20, {value: parseEther('2.1')}),
-      'Should throw on bet more than 2 eth'
+      () => casinoPlayer1.guess(20, {value: parseEther('200').div(prizeMultiplier).add(100)}),
+      'Should throw on prize more than 200 ethers'
     );
 
     // checking if this is possible to win
@@ -89,7 +94,10 @@ xdescribe('Casino', () => {
 
         const prizeValue = balanceAfter.sub(balanceBefore);
         console.log(formatEther(prizeValue));
-        assert(prizeValue.eq(parseEther('99')), 'Invalid prize value');
+        assert(prizeValue.eq(expPrizeValue), 'Invalid prize value');
+
+        const newPrizeMultiplier = await casino.prizeMultiplier();
+        assert(newPrizeMultiplier == 99, 'Invalid prize multiplier');
 
         break;
       }
