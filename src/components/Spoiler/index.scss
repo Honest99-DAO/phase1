@@ -1,0 +1,26 @@
+@import "src/utils/lib";
+
+
+.spoiler {
+  .header {
+    padding: 0 7px 0 12px;
+    cursor: pointer;
+    height: 50px;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    p {
+      font-size: 18px;
+      font-family: $header-font;
+    }
+  }
+
+  .content {
+    &.hidden {
+      display: none;
+    }
+  }
+}

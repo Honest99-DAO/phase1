@@ -1,0 +1,23 @@
+@import "src/utils/lib";
+
+
+.tabs {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+
+  .tab {
+    width: 100%;
+    border-bottom: 2px solid white;
+    text-align: center;
+    font-size: 18px;
+    font-family: $header-font;
+    cursor: pointer;
+
+    &.active, &:hover {
+      border-bottom: 2px solid $teal;
+      color: $teal;
+    }
+  }
+}

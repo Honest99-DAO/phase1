@@ -1,0 +1,48 @@
+@import "src/utils/lib";
+
+
+.winnersList {
+  display: flex;
+  flex-flow: row nowrap;
+
+  .line {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 6px;
+    width: 90px;
+    border-radius: 10px;
+    background-color: white;
+
+    margin-right: 10px;
+
+    &:nth-last-of-type(1) {
+      margin-right: 0;
+    }
+
+    span {
+      color: $blue;
+      margin-bottom: 5px;
+
+      &:nth-last-of-type(1) {
+        margin-bottom: 0;
+      }
+    }
+
+    .address, .prize {
+      font-style: italic;
+      font-weight: 300;
+      font-size: 12px;
+    }
+
+    .prize {
+      color: $teal;
+    }
+
+    .number {
+      font-weight: bold;
+      font-size: 40px;
+    }
+  }
+}

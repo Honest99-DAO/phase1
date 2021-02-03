@@ -1,0 +1,65 @@
+@import "src/utils/lib";
+
+
+.guessResultPage {
+  @include padded-content;
+
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: space-between;
+  height: 100vh;
+
+  .headerWrapper {
+    width: 100%;
+
+    .guess {
+      @include header-margin;
+
+      p {
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 48px;
+        text-align: center;
+      }
+    }
+  }
+
+  .section {
+    width: 100%;
+
+    .result {
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+
+      h2 {
+        margin-bottom: 10px;
+      }
+    }
+
+    .status {
+      margin-top: 45px;
+
+      p {
+        text-align: center;
+        font-size: 36px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+    }
+  }
+
+  h2 {
+    width: 100%;
+    font-size: 18px;
+    font-family: $header-font;
+    text-align: center;
+    font-weight: 400;
+  }
+
+  .btn {
+    padding: 8px 15px;
+    margin-bottom: 40px;
+  }
+}

@@ -1,0 +1,17 @@
+@import "src/utils/lib";
+
+
+.textarea {
+  background-color: white;
+  padding: 12px 5px;
+  position: relative;
+  width: 100%;
+  outline: none;
+  border: none;
+  font-size: 14px;
+  font-family: $normal-font;
+  font-weight: bold;
+  font-style: italic;
+  box-sizing: border-box;
+  resize: vertical;
+}

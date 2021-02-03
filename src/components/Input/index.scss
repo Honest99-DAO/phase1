@@ -1,0 +1,26 @@
+@import "src/utils/lib";
+
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  background-color: white;
+  padding: 12px 5px;
+
+  .input {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    font-size: 14px;
+    font-family: $normal-font;
+    font-weight: bold;
+    font-style: italic;
+    padding: 0;
+  }
+}

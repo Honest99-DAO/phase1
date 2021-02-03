@@ -1,0 +1,14 @@
+@import "src/utils/lib";
+
+
+.daoRouterPage {
+  @include media(">=tablet") {
+    max-width: $content-width;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .tabs {
+    margin-top: 55px;
+  }
+}

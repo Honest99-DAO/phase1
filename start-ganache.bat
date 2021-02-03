@@ -1,0 +1,1 @@
+docker run -d --name ganache -it -p 8545:8545 trufflesuite/ganache-cli:latest -b 2 -v -e 1000000 --gasPrice=100000000000 -m "zebra grant load arctic broken broom first timber peasant lizard purse ride"

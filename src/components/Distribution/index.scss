@@ -1,0 +1,58 @@
+@import "src/utils/lib";
+
+
+.distribution {
+  width: 100%;
+
+  .entries {
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+    .entry {
+      position: relative;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+
+      p {
+        font-weight: lighter;
+        font-style: italic;
+        color: inherit;
+        text-align: center;
+      }
+    }
+  }
+
+  .legend {
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: $content-padding-h;
+
+    .legendEntry {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      .legendColor {
+        display: block;
+        width: 15px;
+        height: 15px;
+        margin-right: 4px;
+      }
+
+      p {
+        font-size: 14px;
+        position: relative;
+        top: 1px;
+        font-weight: lighter;
+      }
+    }
+  }
+}

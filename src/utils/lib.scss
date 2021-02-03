@@ -1,0 +1,40 @@
+@import "node_modules/include-media/dist/include-media";
+
+$blue: #0a0712;
+$teal: #0CB7A2;
+$gray: #c4c4c4;
+$green: #03AB00;
+$red: #FF4646;
+
+$header-font: "Rhodium Libre", sans;
+$normal-font: Roboto, sans-serif;
+
+$content-width: 768px;
+$content-padding-h: 12px;
+
+b {
+  font-weight: bold;
+}
+
+i {
+  font-style: italic;
+}
+
+u {
+  text-decoration: underline;
+}
+
+@mixin header-margin() {
+  margin-top: 35px;
+}
+
+@mixin padded-content($padding-hor: $content-padding-h, $max-width: $content-width) {
+  width: 100%;
+  max-width: $max-width;
+
+  padding-left: $padding-hor;
+  padding-right: $padding-hor;
+
+  margin-left: auto;
+  margin-right: auto;
+}

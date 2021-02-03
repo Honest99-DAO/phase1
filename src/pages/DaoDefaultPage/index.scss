@@ -1,0 +1,48 @@
+@import "src/utils/lib";
+
+.defaultPage {
+  @include padded-content;
+
+  height: 100vh;
+  color: white;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: space-between;
+
+  .header {
+    h1 {
+      margin-top: 100px;
+      font-family: $header-font;
+      font-size: 36px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h2 {
+      text-align: right;
+    }
+  }
+
+  p {
+    font-size: 16px;
+    margin-bottom: 1em;
+    text-align: center;
+    font-weight: lighter;
+
+    .small {
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 12px;
+    }
+
+    b {
+      font-weight: 700;
+    }
+
+    a {
+      text-decoration: underline;
+      color: $teal;
+      font-weight: 700;
+    }
+  }
+}

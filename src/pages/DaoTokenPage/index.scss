@@ -1,0 +1,71 @@
+@import "src/utils/lib";
+
+
+.daoTokenPage {
+  @include padded-content;
+  @include header-margin;
+
+  .distribution {
+    margin-top: 20px;
+    margin-bottom: 50px;
+  }
+
+  h2 {
+    font-family: $header-font;
+    font-size: 18px;
+  }
+
+  .links {
+    margin-top: 20px;
+    margin-bottom: 50px;
+
+    p {
+      line-height: 1em;
+      font-size: 14px;
+      font-weight: lighter;
+      margin-bottom: 7px;
+
+      &:nth-last-of-type(1) {
+        margin-bottom: 0;
+      }
+    }
+
+    a {
+      color: $teal;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+  }
+
+  .form {
+    margin-top: 10px;
+    margin-bottom: 90px;
+
+    p {
+      font-weight: lighter;
+      font-style: italic;
+      margin-top: 5px;
+      font-size: 12px;
+    }
+  }
+
+  .btnWrapper {
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+
+    .btn {
+      padding: 8px 15px;
+    }
+
+    p {
+      font-style: italic;
+      font-size: 12px;
+      font-weight: lighter;
+      margin-top: 5px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+  }
+}

@@ -1,0 +1,26 @@
+@import "src/utils/lib";
+
+
+.daoVotingsPage {
+  @include header-margin;
+
+  .btnWrapper {
+    @include padded-content;
+
+    .btn {
+      width: 100%;
+      padding: 8px 15px;
+      text-align: center;
+      justify-content: center;
+    }
+  }
+
+  .spoiler1 {
+    margin-top: 30px;
+  }
+
+  .spoiler2 {
+    margin-top: 15px;
+    padding-bottom: 40px;
+  }
+}

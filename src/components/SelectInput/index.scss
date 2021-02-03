@@ -1,0 +1,20 @@
+@import "src/utils/lib";
+
+
+.selectInput {
+  background-color: white;
+  height: 40px;
+  width: 100%;
+  border: none;
+  padding: 12px 5px;
+
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+
+  font-family: $normal-font;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 14px;
+}

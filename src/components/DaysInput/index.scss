@@ -1,0 +1,20 @@
+@import "src/utils/lib";
+
+
+.amountInput {
+  .select {
+    padding: 0;
+    border: none;
+    font-family: $normal-font;
+    font-size: 14px;
+    font-style: italic;
+    background-color: white;
+  }
+
+  .label {
+    color: $blue;
+    font-size: 14px;
+    font-style: italic;
+    font-weight: lighter;
+  }
+}
