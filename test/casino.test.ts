@@ -2,12 +2,11 @@ import {
   assertTxThrows,
   createWallets,
   delay,
-  initialDeployment,
-  parseGuess,
+  initialDeployment
 } from './utils';
 import {assert} from 'chai';
 import {formatEther, parseEther} from 'ethers/lib/utils';
-import {BigNumber} from 'ethers';
+import {parseGuess} from '../src/utils/common';
 
 
 describe('Casino', () => {
@@ -29,7 +28,7 @@ describe('Casino', () => {
     await owner.sendTransaction({value: parseEther('500'), to: casino.address}).then(it => it.wait());
 
     const prizeMultiplier = await casino.prizeMultiplier();
-    assert(prizeMultiplier == 95, 'Invalid prize multiplier');
+    assert(prizeMultiplier == 66, 'Invalid prize multiplier');
 
     const expPrizeValue = parseEther('1').mul(prizeMultiplier);
 
@@ -66,7 +65,7 @@ describe('Casino', () => {
       'Should throw on > 99'
     );
     await assertTxThrows(
-      () => casinoPlayer1.guess(20, {value: parseEther('200').div(prizeMultiplier).add(100)}),
+      () => casinoPlayer1.guess(20, {value: parseEther('203').div(prizeMultiplier).add(100)}),
       'Should throw on prize more than 200 ethers'
     );
 
@@ -89,7 +88,7 @@ describe('Casino', () => {
         console.log(`We have a winner since ${i*3} trials!`, `random: ${win.randomNumber}`, `guess: ${win.number}`);
 
         const balanceBefore = await casinoPlayer1.provider.getBalance(win.sender);
-        await casinoPlayer1.claimPrize(win.sender).then(it => it.wait());
+        await casino.claimPrize(win.sender).then(it => it.wait());
         const balanceAfter = await casinoPlayer1.provider.getBalance(win.sender);
 
         const prizeValue = balanceAfter.sub(balanceBefore);

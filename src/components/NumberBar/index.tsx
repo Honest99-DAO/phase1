@@ -23,7 +23,14 @@ export function NumberBar(props: IProps) {
     if (props.number != undefined) {
       setCurrentNumber(props.number);
     } else {
-      const newInt = setInterval(() => setCurrentNumber(generateRandom()), 100);
+      let i = 0;
+
+      const newInt = setInterval(() => {
+        setCurrentNumber(i);
+        if (i < 99) i++;
+        else i = 0;
+
+      }, 10);
       setInt(newInt);
     }
   }, [props.number]);
@@ -32,5 +39,5 @@ export function NumberBar(props: IProps) {
     <div className={cls(styles.numberBar, props.className)}>
       <p className={cls(props.number == undefined && styles.spinning)}>{currentNumber}</p>
     </div>
-  )
+  );
 }

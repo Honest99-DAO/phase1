@@ -21,6 +21,9 @@
       flex-flow: column nowrap;
       align-items: center;
 
+      .loader {
+        width: 50px;
+      }
     }
   }
 
@@ -31,21 +34,30 @@
     align-items: center;
 
     margin-top: 90px;
+    margin-bottom: 50px;
+
+    h2 {
+      font-size: 24px;
+    }
 
     >p {
-      position: relative;
       font-size: 12px;
       font-style: italic;
       font-weight: lighter;
-      top: -20px;
+    }
+
+
+    .note {
+      width: 100%;
+      text-align: left;
+      margin-top: 5px;
     }
 
     .amountInput {
-      margin-bottom: 20px;
     }
 
     .betInput {
-
+      margin-top: 10px;
     }
   }
 
@@ -54,7 +66,7 @@
     flex-flow: column nowrap;
     align-items: center;
 
-    margin-top: 120px;
+    margin-top: 50px;
 
     .btn {
       padding: 14px 26px;

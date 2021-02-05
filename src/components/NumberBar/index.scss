@@ -5,16 +5,12 @@
   background-color: white;
   font-size: 96px;
   width: 1.5em;
+  border-radius: 10px;
 
   p {
     color: $blue;
     font-size: 96px;
     text-align: center;
     font-weight: bold;
-
-    &.spinning {
-      color: transparent;
-      text-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
   }
 }

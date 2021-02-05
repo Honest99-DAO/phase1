@@ -7,11 +7,12 @@ import {Redirect, Route, Switch} from 'react-router';
 import {useDefaultAsyncLazyLoadSelector} from '~/store/utils';
 import {casinoActions} from '~/store/casino';
 import {CasinoGuessPage} from '~/pages/CasinoGuessPage';
+import {CasinoResultPage} from '~/pages/CasinoResultPage';
 
 
 const tabs: ITab[] = [
   {title: 'Guess', onClickNavTo: '/casino/dashboard/guess'},
-  {title: 'Claim prize', onClickNavTo: '/casino/dashboard/claim'}
+  {title: 'Result', onClickNavTo: '/casino/dashboard/result', param: 'simple'}
 ];
 
 export function CasinoRouterPage() {
@@ -39,9 +40,8 @@ export function CasinoRouterPage() {
           render={() => <CasinoGuessPage/>}
         />
         <Route
-          exact
-          path='/casino/dashboard/claim'
-          render={() => <p>No page</p>}
+          path='/casino/dashboard/result/:mode'
+          render={() => <CasinoResultPage/>}
         />
         <Redirect to='/404'/>
       </Switch>

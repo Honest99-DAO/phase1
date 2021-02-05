@@ -1,9 +1,11 @@
 import {HDKey} from 'wallet.ts';
 import {mnemonicToSeed} from 'bip39';
-import {ethers} from 'ethers';
+import {BigNumber, ethers} from 'ethers';
 import Web3 from 'web3';
 import {HonestCasino, HonestCasinoFactory} from './types/ethers-contracts';
-import {formatEther} from 'ethers/lib/utils';
+import {formatEther, parseEther} from 'ethers/lib/utils';
+import {CONFIG, SUPPORTED_NETWORKS} from './src/config';
+import {parseGuess} from './src/utils/common';
 
 
 const NETWORK = 'development';
@@ -44,6 +46,48 @@ async function deployment(wallet: ethers.Wallet): Promise<IDeployment> {
   const casino = await casinoFactory.deploy().then(it => it.deployed());
   const rec2 = await casino.deployTransaction.wait();
   console.log(`Casino contract deployed (${formatEther(rec2.gasUsed.mul(gasPrice))} ETH gas used)`, casino.address);
+
+  if (CONFIG.network == SUPPORTED_NETWORKS.DEV) {
+    await wallet.sendTransaction({value: parseEther('1'), to: casino.address}).then(it => it.wait());
+
+    let wins = 0;
+
+    let i = 0;
+    while (wins < 5) {
+      i++;
+
+      const betHardCap = parseEther('200');
+      const prizeFund = await casino.provider.getBalance(casino.address);
+      const prizeMultiplier = await casino.prizeMultiplier();
+
+      let maxBetSize: BigNumber;
+      if (betHardCap.lt(prizeFund.div(2))) {
+        maxBetSize = betHardCap.div(prizeMultiplier);
+      } else {
+        maxBetSize = prizeFund.div(2).div(prizeMultiplier)
+      }
+
+      const rec = await casino.guess(Math.floor(Math.random() * 100), {value: maxBetSize}).then(it => it.wait());
+      const guess = parseGuess(rec);
+
+      if (guess.number == guess.randomNumber) {
+        wins++;
+
+        console.log(
+          `Try #${i}`,
+          `Prize fund before win #${wins}: ${formatEther(prizeFund)} ETH`,
+          `Winning number - ${guess.number}`,
+          `Max bet size - ${formatEther(maxBetSize)} ETH`
+        );
+
+        await casino.claimPrize(wallet.address).then(it => it.wait());
+      }
+    }
+
+    const prizeFundAfter = await wallet.provider.getBalance(casino.address);
+
+    console.log(`The prize fund after ${wins} wins and ${i} guesses: ${formatEther(prizeFundAfter)}`)
+  }
 
   return {casino};
 }

@@ -1,7 +1,6 @@
 import {ComponentChildren} from 'preact';
-import {BigNumber} from 'ethers';
-import {formatEther, parseEther} from 'ethers/lib/utils';
-import {Connectors} from 'use-wallet';
+import {BigNumber, ContractReceipt, utils} from 'ethers';
+import {formatEther} from 'ethers/lib/utils';
 
 
 export interface IClassName {
@@ -110,6 +109,10 @@ export function linkToContract(address: string): string {
   return `https://etherscan.io/address/${address}`;
 }
 
+export function linkToTx(txHash: string): string {
+  return `https://etherscan.io/tx/${txHash}`;
+}
+
 export function capitalize(str: string) {
   if (!str) return str;
 
@@ -123,17 +126,69 @@ export function plural(count: number, one: string, two: string, five: string): s
   return five;
 }
 
-export function setWalletConnected(value: keyof Connectors | null) {
-  localStorage.setItem('__WALLET_CONNECTED', JSON.stringify(value));
+export interface IGuess {
+  sender: string;
+  bet: BigNumber;
+  number: number;
+  randomNumber: number;
 }
 
-export function isWalletConnected(): keyof Connectors | null {
-  const val = localStorage.getItem('__WALLET_CONNECTED');
+export function parseGuess(rec: ContractReceipt): IGuess {
+  const guessEvent: [string, BigNumber, number, number] = txnReceiptParseEvent(rec);
 
-  return val ? JSON.parse(val) : null;
+  return {
+    sender: guessEvent[0],
+    bet: guessEvent[1],
+    number: guessEvent[3],
+    randomNumber: calculateRandomNumber(rec.blockHash, guessEvent[2])
+  };
 }
 
-export const MAX_MINTED = parseEther('10000');
-export const FOUNDER_REWARD = parseEther('2000');
-export const ONE_DAY = 60 * 60 * 24 + 1;
-export const THIRTY_DAYS = ONE_DAY * 30 + 1;
+export function parseGuessFromEvent(
+  event: { guesser: string, bet: BigNumber, nonce: number, number: number },
+  blockHash: string
+): IGuess {
+
+  return {
+    sender: event.guesser,
+    bet: event.bet,
+    number: event.number,
+    randomNumber: calculateRandomNumber(blockHash, event.nonce)
+  };
+}
+
+export function txnReceiptParseEvent<T>(rec: ContractReceipt): T {
+  // @ts-ignore
+  return rec.events[0].args;
+}
+
+export function calculateRandomNumber(blockHash: string, nonce: number): number {
+  const hashStr = utils.solidityKeccak256(['bytes32', 'uint16'], [blockHash, nonce]);
+  const number = BigNumber.from(hashStr);
+
+  return number.mod(100).toNumber();
+}
+
+export type WalletId = 'injected' | 'walletconnect';
+
+export function saveWalletId(id: WalletId | null) {
+  if (id == null) {
+    localStorage.removeItem('__WALLET_ID');
+  } else {
+    localStorage.setItem('__WALLET_ID', id);
+  }
+}
+
+export function restoreWalletId(): WalletId | null {
+  return localStorage.getItem('__WALLET_ID') as WalletId;
+}
+
+export function saveGuessNumber(number: number) {
+  localStorage.setItem('__GUESS_NUMBER', JSON.stringify(number));
+}
+
+export function restoreGuessNumber(): number | null {
+  const num = localStorage.getItem('__GUESS_NUMBER');
+
+  return num ? JSON.parse(num) : null;
+}

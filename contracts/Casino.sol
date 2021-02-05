@@ -19,7 +19,7 @@ contract HonestCasino is Ownable {
     uint256 constant MAX_PRIZE = 200 ether; // fits in uint72
 
     uint16 nonce = 0;
-    uint8 public prizeMultiplier = 95;
+    uint8 public prizeMultiplier = 66;
     mapping(address => GuessEntry) guesses;
 
     event Guess(address indexed guesser, uint72 bet, uint16 nonce, uint8 number);
@@ -31,6 +31,7 @@ contract HonestCasino is Ownable {
     function guess(uint8 guessNumber) external payable {
         // checking inputs
         require(guessNumber < 100, "$CAS1");
+
         uint256 fee = msg.value / 101;
         uint256 bet = msg.value - fee;
 
@@ -65,10 +66,10 @@ contract HonestCasino is Ownable {
         }
 
         // if there is enough ethers in the prize fund - make the EV neutral
-        if (address(this).balance >= 400 ether && prizeMultiplier == 95) {
+        if (address(this).balance >= 400 ether && prizeMultiplier == 66) {
             prizeMultiplier = 99;
         } else if (address(this).balance < 400 ether && prizeMultiplier == 99) {
-            prizeMultiplier = 95;
+            prizeMultiplier = 66;
         }
 
         // sending prize if the number is correct

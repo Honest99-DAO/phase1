@@ -1,5 +1,5 @@
 import {HonestCasinoFactory} from '../../types/ethers-contracts';
-import {BigNumber, Signer} from 'ethers';
+import {BigNumber, ContractTransaction, Signer} from 'ethers';
 import {ICasinoGuessEvent, ICasinoWinEvent} from '~/store/casino';
 import {CONFIG} from '~/config';
 import {getProvider} from '~/api/utils';
@@ -54,7 +54,7 @@ export async function getMyRecentWin(signer: Signer): Promise<ICasinoWinEvent | 
       number: lastEventRaw.args!['number'],
       player: lastEventRaw.args!['guesser'],
       prize: lastEventRaw.args!['prizeValue'],
-      blockHash: lastEventRaw.blockHash
+      txnHash: lastEventRaw.transactionHash
     }
   }
 }
@@ -63,12 +63,14 @@ export async function getRecentWinners(): Promise<ICasinoWinEvent[]> {
   const filter = casino.filters.PrizeClaim(null, null, null);
   const events = await casino.queryFilter(filter);
 
-  return events.map(ev => ({
+  const winEvents = events.map(ev => ({
     player: ev.args!['guesser'],
-    number: ev.args!['number'].toNumber(),
+    number: ev.args!['number'],
     prize: ev.args!['prizeValue'],
-    blockHash: ev.blockHash
+    txnHash: ev.transactionHash
   }));
+
+  return winEvents.slice(Math.max(winEvents.length - 3, 0));
 }
 
 export async function getPrizeMultiplier(): Promise<number> {
@@ -80,11 +82,10 @@ export interface ICasinoGuessReq {
   number: number;
 }
 
-export async function makeAGuess(signer: Signer, guess: ICasinoGuessReq) {
+export async function makeAGuess(signer: Signer, guess: ICasinoGuessReq): Promise<ContractTransaction> {
   const casinoRW = casino.connect(signer);
 
-  const tx = await casinoRW.guess(guess.number, {value: guess.bet});
-  await tx.wait();
+  return await casinoRW.guess(guess.number, {value: guess.bet});
 }
 
 export async function claimReward(signer: Signer) {

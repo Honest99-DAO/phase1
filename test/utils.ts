@@ -1,6 +1,6 @@
 import {HDKey} from 'wallet.ts';
 import {mnemonicToSeed} from 'bip39';
-import {BigNumber, BigNumberish, ContractReceipt, ContractTransaction, ethers, utils} from 'ethers';
+import {BigNumber, BigNumberish, ContractTransaction, ethers} from 'ethers';
 import Web3 from 'web3';
 import {HonestCasino, HonestCasinoFactory} from '../types/ethers-contracts';
 import {assert} from 'chai';
@@ -73,36 +73,6 @@ export const ETHER_WEI_FACTOR = BigNumber.from(10).pow(18);
 
 export function logAmount(num: BigNumberish, prefix: string = '', postfix: string = EtherUnit.ETHER) {
   console.log(prefix + ' ' + formatEther(num) + ' ' + postfix);
-}
-
-export interface IGuess {
-  sender: string;
-  bet: BigNumber;
-  number: number;
-  randomNumber: number;
-}
-
-export function parseGuess(rec: ContractReceipt): IGuess {
-  const guessEvent: [string, BigNumber, number, number] = txnReceiptParseEvent(rec);
-
-  return {
-    sender: guessEvent[0],
-    bet: guessEvent[1],
-    number: guessEvent[3],
-    randomNumber: calculateRandomNumber(rec.blockHash, guessEvent[2])
-  };
-}
-
-export function txnReceiptParseEvent<T>(rec: ContractReceipt): T {
-  // @ts-ignore
-  return rec.events[0].args;
-}
-
-export function calculateRandomNumber(blockHash: string, nonce: number): number {
-  const hashStr = utils.solidityKeccak256(['bytes32', 'uint16'], [blockHash, nonce]);
-  const number = BigNumber.from(hashStr);
-
-  return number.mod(100).toNumber();
 }
 
 export const ONE_DAY = 60 * 60 * 24 + 1;

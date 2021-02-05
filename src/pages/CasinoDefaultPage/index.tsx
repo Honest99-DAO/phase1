@@ -31,9 +31,10 @@ export function CasinoDefaultPage() {
 
       <div className={styles.rules}>
         <p>Bet <i>ETH</i> on any number between <b>0</b> and <b>99</b></p>
-        <p>If your guess was correct, you get <b>x{prizeMultiplier.data ? prizeMultiplier.data : 'N'}</b> of your bet</p>
+        <p>If your guess was correct, you get <b>x{prizeMultiplier.data ? prizeMultiplier.data : 'N'}</b> of your bet
+        </p>
         <p>Max prize is <b>200</b> <i>ETH</i> <br/> (but no more than a half of the prize fund)</p>
-        <p><b>1%</b> fee of each bet goes to <Link to='/dao'>phase 2 funding</Link></p>
+        <p><b>1%</b> fee of each bet goes to <Link to='/dao'>phase 2</Link></p>
         <p>If your guess was wrong, you lose your <i>ETH</i></p>
       </div>
 
@@ -49,12 +50,15 @@ export function CasinoDefaultPage() {
         {
           signer
             ? (
-              <Button
-                onClick={handleOnClickContinue}
-                className={cls(styles.btn)}
-              >
-                Continue
-              </Button>
+              <Fragment>
+                <Button
+                  onClick={handleOnClickContinue}
+                  className={cls(styles.btn)}
+                >
+                  Continue
+                </Button>
+                <p>or <Link to='/connect-wallet'>disconnect wallet</Link></p>
+              </Fragment>
             )
             : (
               <Fragment>

@@ -4,11 +4,11 @@ import {
   defaultAsyncSaga,
   defaultAsyncState,
   IAsyncState,
-  IAsyncStateVoid
+  IAsyncStateVoid, putErr
 } from '~/store/utils';
-import {BigNumber, Signer} from 'ethers';
+import {BigNumber, ContractTransaction, Signer} from 'ethers';
 import {Action, createReducer, getType} from 'deox';
-import {takeLatest} from 'redux-saga/effects';
+import {call, put, takeLatest} from 'redux-saga/effects';
 import {
   claimReward,
   getGuessesToday,
@@ -20,13 +20,15 @@ import {
   makeAGuess
 } from '~/api/casino';
 import {toast} from 'react-toastify';
+import {IGuess, parseGuess, saveGuessNumber} from '~/utils/common';
+import {push} from 'connected-react-router';
 
 
 export interface ICasinoWinEvent {
   player: string;
   number: number;
   prize: BigNumber;
-  blockHash: string;
+  txnHash: string;
 }
 
 export interface ICasinoGuessEvent {
@@ -50,7 +52,7 @@ export interface ICasinoState {
   myRecentGuess: IAsyncState<ICasinoGuessEvent | null>;
   myRecentWin: IAsyncState<ICasinoWinEvent | null>;
 
-  guess: IAsyncStateVoid;
+  guess: IAsyncState<IGuess>;
   claimReward: IAsyncStateVoid;
 }
 
@@ -75,7 +77,7 @@ export const casinoActions = {
   getMyRecentGuess: createAsyncActionCreator<Signer, ICasinoGuessEvent | null>('casino/get-my-recent-guess'),
   getMyRecentWin: createAsyncActionCreator<Signer, ICasinoWinEvent | null>('casino/get-my-recent-win'),
 
-  makeAGuess: createAsyncActionCreator<ICasinoGuessReqExt, void>('casino/make-a-guess'),
+  makeAGuess: createAsyncActionCreator<ICasinoGuessReqExt, IGuess>('casino/make-a-guess'),
   claimReward: createAsyncActionCreator<Signer, void>('casino/claim-reward')
 };
 
@@ -117,10 +119,26 @@ function* getMyRecentWinSaga(action: Action<string, Signer>) {
 }
 
 function* guessSaga(action: Action<string, ICasinoGuessReqExt>) {
-  yield defaultAsyncSaga(casinoActions.makeAGuess, async () => {
-    await makeAGuess(action.payload.signer, action.payload.req);
-    toast.info('Your bet is placed!');
-  });
+  try {
+    const tx: ContractTransaction = yield call(makeAGuess, action.payload.signer, action.payload.req);
+
+    saveGuessNumber(action.payload.req.number);
+    yield put(push('/casino/dashboard/result/from-guess'))
+
+    const rec = yield call(() => tx.wait());
+
+    const guess = parseGuess(rec)
+
+    if (guess.number == guess.randomNumber) {
+      toast.success('Numbers match! Claim your prize')
+    } else {
+      toast.info('Numbers don\'t match :C');
+    }
+
+    yield put(casinoActions.makeAGuess.success(guess));
+  } catch (e) {
+    yield putErr(casinoActions.makeAGuess.fail(e));
+  }
 }
 
 function* claimRewardSaga(action: Action<string, Signer>) {
