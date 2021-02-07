@@ -6,9 +6,8 @@ import {HonestCasino, HonestCasinoFactory} from '../types/ethers-contracts';
 import {assert} from 'chai';
 import {formatEther} from 'ethers/lib/utils';
 import {EtherUnit} from '../src/utils/common';
+import {CONFIG, RPCs} from '../src/config';
 
-
-export const ETH_ENDPOINT = 'http://localhost:8545';
 
 export async function createAdminWallets(): Promise<HDKey[]> {
   const seed = await mnemonicToSeed('zebra grant load arctic broken broom first timber peasant lizard purse ride');
@@ -28,7 +27,7 @@ export async function createAdminWallets(): Promise<HDKey[]> {
 export async function createWallets(): Promise<ethers.Wallet[]> {
   const wallets = await createAdminWallets();
   // @ts-ignore
-  const provider = new ethers.providers.Web3Provider(new Web3.providers.HttpProvider(ETH_ENDPOINT));
+  const provider = new ethers.providers.Web3Provider(new Web3.providers.HttpProvider(RPCs[CONFIG.chainId]));
 
   return wallets.map(wallet => new ethers.Wallet(wallet.privateKey!, provider));
 }
@@ -68,8 +67,6 @@ export async function assertTxThrows(func: () => Promise<ContractTransaction>, m
     console.log(`Thrown as expected: [${message}] - ${e.reason || e.message}`);
   }
 }
-
-export const ETHER_WEI_FACTOR = BigNumber.from(10).pow(18);
 
 export function logAmount(num: BigNumberish, prefix: string = '', postfix: string = EtherUnit.ETHER) {
   console.log(prefix + ' ' + formatEther(num) + ' ' + postfix);

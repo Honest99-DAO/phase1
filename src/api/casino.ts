@@ -1,13 +1,22 @@
-import {HonestCasinoFactory} from '../../types/ethers-contracts';
-import {BigNumber, ContractTransaction, Signer, Event} from 'ethers';
+import {HonestCasino, HonestCasinoFactory} from '../../types/ethers-contracts';
+import {BigNumber, ContractTransaction, Signer} from 'ethers';
 import {ICasinoGuessReq, ICasinoWinEvent, IGuess} from '~/store/casino';
-import {CONFIG} from '~/config';
+import {CONFIG, SUPPORTED_NETWORKS} from '~/config';
 import {getProvider} from '~/api/utils';
 import {Channel} from '~/utils/common';
 import {parseGuessFromEvent, parseWinFromEvent} from '~/utils/model';
 
 
-const casino = HonestCasinoFactory.connect(CONFIG.casinoContractAddress, getProvider());
+let casino: HonestCasino;
+export function initCasino(chainId: SUPPORTED_NETWORKS) {
+/*  if (casino) {
+    teardownBlockListener();
+    teardownGuessesListener();
+    teardownPrizeClaimsListener();
+  }*/
+
+  casino = HonestCasinoFactory.connect(CONFIG.casinoContractAddress[chainId], getProvider(chainId))
+}
 
 // FILTERS
 
@@ -96,11 +105,16 @@ let GuessesListenerSet = false;
 export const setupGuessesListener = () => {
   if (GuessesListenerSet) return;
 
-  casino.provider.on(GuessesTodayFilter(), (_, event: Event) => {
-    console.log('New guess event', event);
-    GuessesChannel.write(parseGuessFromEvent(event.args as any, event.blockHash, event.transactionHash, event.blockNumber));
+  casino.provider.on(GuessesTodayFilter(), (log) => {
+    const parsedLog = casino.interface.parseLog(log);
+    GuessesChannel.write(parseGuessFromEvent(parsedLog.args as any, log.blockHash, log.transactionHash, log.blockNumber));
   });
   GuessesListenerSet = true;
+}
+export const teardownGuessesListener = () => {
+  GuessesListenerSet = false;
+
+  casino.provider.off(GuessesTodayFilter());
 }
 
 export const PrizeClaimsChannel = new Channel<ICasinoWinEvent>();
@@ -108,21 +122,37 @@ let PrizeClaimsListenerSet = false;
 export const setupPrizeClaimsListener = () => {
   if (PrizeClaimsListenerSet) return;
 
-  casino.provider.on(PrizeClaimsFilter(), (_, event: Event) => {
-    console.log('New prize claim event', event);
-    PrizeClaimsChannel.write(parseWinFromEvent(event as any));
+  casino.provider.on(PrizeClaimsFilter(), (log) => {
+    const parsedLog = casino.interface.parseLog(log);
+    PrizeClaimsChannel.write(parseWinFromEvent(parsedLog.args as any));
   });
   PrizeClaimsListenerSet = true;
+}
+export const teardownPrizeClaimsListener = () => {
+  PrizeClaimsListenerSet = false;
+
+  casino.provider.off(PrizeClaimsFilter());
 }
 
 export const BlockNumberChannel = new Channel<number>();
 export const PrizeMultiplierChannel = new Channel<number>();
 export const PrizeFundChannel = new Channel<BigNumber>();
-casino.provider.on('block', async (blockNumber: number) => {
-  const prizeFund = getPrizeFund();
-  const prizeMultiplier = getPrizeMultiplier();
+let BlockListenerSet = false;
+export const setupBlockListener = () => {
+  if (BlockListenerSet) return;
 
-  BlockNumberChannel.write(blockNumber);
-  PrizeFundChannel.write(await prizeFund);
-  PrizeMultiplierChannel.write(await prizeMultiplier);
-});
+  casino.provider.on('block', async (blockNumber: number) => {
+    const prizeFund = getPrizeFund();
+    const prizeMultiplier = getPrizeMultiplier();
+
+    BlockNumberChannel.write(blockNumber);
+    PrizeFundChannel.write(await prizeFund);
+    PrizeMultiplierChannel.write(await prizeMultiplier);
+  });
+  BlockListenerSet = true;
+}
+export const teardownBlockListener = () => {
+  BlockListenerSet = false;
+
+  casino.provider.off('block');
+}

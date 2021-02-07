@@ -13,7 +13,6 @@ import {Loader} from '~/components/Loader';
 import {restoreWalletId} from '~/utils/model';
 
 
-let chainId: number | undefined;
 let account: string | null | undefined;
 
 export function Routes() {
@@ -48,12 +47,9 @@ export function Routes() {
     if (web3React.account) {
       if (!account) account = web3React.account;
       else if (account != web3React.account) window.location.reload();
-
-    } else if (web3React.chainId) {
-      if (!chainId) chainId = web3React.chainId;
-      else if (chainId != web3React.chainId) window.location.reload();
     }
-  }, [web3React.account, web3React.chainId])
+  }, [web3React.account])
+
 
   return (
     showLoader

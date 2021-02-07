@@ -8,7 +8,7 @@ import {AmountInput} from '~/components/AmountInput';
 import {useState} from 'preact/hooks';
 import {Button} from '~/components/Button';
 import {formatEther, parseEther} from 'ethers/lib/utils';
-import {randomInt, shrinkUnits} from '~/utils/common';
+import {randomInt, shrinkUnits, useChainId} from '~/utils/common';
 import RandomIcon from '~/public/random.svg';
 import {Icon} from '~/components/Icon';
 import {casinoActions} from '~/store/casino';
@@ -19,6 +19,8 @@ import {Loader} from '~/components/Loader';
 
 
 export function CasinoGuessPage() {
+  const chainId = useChainId();
+
   const casinoRecentWinners = useDefaultAsyncLazyLoadSelector(
     state => state.casino.recentWinners,
     casinoActions.getRecentWinners.start()
@@ -89,7 +91,7 @@ export function CasinoGuessPage() {
             ? casinoRecentWinners.data && casinoRecentWinners.data.length > 0 && (
             <div className={styles.winners}>
               <h2>Recent winners</h2>
-              <WinnersList data={casinoRecentWinners.data || []}/>
+              <WinnersList chainId={chainId} data={casinoRecentWinners.data || []}/>
             </div>
           )
             : (

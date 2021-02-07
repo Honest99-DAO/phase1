@@ -5,3 +5,4 @@ build/
 .cache/
 types/
 yarn-error.log
+.env

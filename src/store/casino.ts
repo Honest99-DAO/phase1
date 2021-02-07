@@ -23,7 +23,7 @@ import {
   makeAGuess,
   PrizeClaimsChannel,
   PrizeFundChannel,
-  PrizeMultiplierChannel,
+  PrizeMultiplierChannel, setupBlockListener,
   setupGuessesListener,
   setupPrizeClaimsListener
 } from '~/api/casino';
@@ -140,6 +140,7 @@ export const casinoReducer = createReducer(defaultCasinoState, h => [
 
 function* getCasinoPrizeFundSaga() {
   yield defaultAsyncSaga(casinoActions.getPrizeFund, getPrizeFund);
+  setupBlockListener();
 
   const read = PrizeFundChannel.read();
 
@@ -151,6 +152,7 @@ function* getCasinoPrizeFundSaga() {
 
 function* getPrizeMultiplierSaga() {
   yield defaultAsyncSaga(casinoActions.getPrizeMultiplier, getPrizeMultiplier);
+  setupBlockListener();
 
   const read = PrizeMultiplierChannel.read();
 
@@ -162,6 +164,7 @@ function* getPrizeMultiplierSaga() {
 
 function* getCurrentBlockNumberSaga() {
   yield defaultAsyncSaga(casinoActions.getCurrentBlockNumber, getCurrentBlockNumber);
+  setupBlockListener();
 
   const read = BlockNumberChannel.read();
 

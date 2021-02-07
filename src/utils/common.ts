@@ -1,4 +1,8 @@
 import {ComponentChildren} from 'preact';
+import {CONFIG, SUPPORTED_NETWORKS} from '~/config';
+import {useWeb3React} from '@web3-react/core';
+import {useEffect, useState} from 'preact/hooks';
+import {initCasino} from '~/api/casino';
 
 
 export interface IClassName {
@@ -44,12 +48,32 @@ export function randomInt(from: number, to: number): number {
   return Math.floor(Math.random() * (to - from) + from);
 }
 
-export function linkToContract(address: string): string {
-  return `https://etherscan.io/address/${address}`;
+export function linkToContract(address: string, chainId: SUPPORTED_NETWORKS): string {
+  switch (chainId) {
+    case SUPPORTED_NETWORKS.DEV:
+    case SUPPORTED_NETWORKS.MAINNET:
+      return `https://etherscan.io/address/${address}`;
+
+    case SUPPORTED_NETWORKS.KOVAN:
+      return `https://kovan.etherscan.io/address/${address}`;
+
+    default:
+      throw new Error('Unsupported chainId');
+  }
 }
 
-export function linkToTx(txHash: string): string {
-  return `https://etherscan.io/tx/${txHash}`;
+export function linkToTx(txHash: string, chainId: SUPPORTED_NETWORKS): string {
+  switch (chainId) {
+    case SUPPORTED_NETWORKS.DEV:
+    case SUPPORTED_NETWORKS.MAINNET:
+      return `https://etherscan.io/tx/${txHash}`;
+
+    case SUPPORTED_NETWORKS.KOVAN:
+      return `https://kovan.etherscan.io/tx/${txHash}`;
+
+    default:
+      throw new Error('Unsupported chainId');
+  }
 }
 
 export function capitalize(str: string) {
@@ -84,6 +108,47 @@ export class Channel<T> {
 
         await delay(10);
       }
-    }
+    };
   }
+}
+
+export function useChainId(): SUPPORTED_NETWORKS {
+  const web3React = useWeb3React();
+  const [chainId, setChainId] = useState(web3React.chainId || CONFIG.chainId || undefined);
+  if (!chainId) throw new Error('No chainId found in provider nor config');
+
+  let fromConfig = false;
+
+  useEffect(
+    () => {
+      if (web3React.chainId) {
+        if (chainId && !fromConfig && chainId != web3React.chainId) {
+          window.location.reload();
+          return;
+        }
+
+        fromConfig = false;
+        setChainId(web3React.chainId);
+        console.log('Updating chainId to wallet value: ', web3React.chainId)
+        return;
+      }
+
+      if (CONFIG.chainId) {
+        if (chainId && chainId != CONFIG.chainId) {
+          window.location.reload();
+          return;
+        }
+
+        fromConfig = true;
+        setChainId(CONFIG.chainId);
+        console.log('Updating chain id to config value: ', CONFIG.chainId)
+        return;
+      }
+    },
+    [web3React.chainId]
+  );
+
+  if (chainId) initCasino(chainId);
+
+  return chainId;
 }
