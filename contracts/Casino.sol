@@ -23,7 +23,7 @@ contract HonestCasino is Ownable {
     mapping(address => GuessEntry) guesses;
 
     event Guess(address indexed guesser, uint72 bet, uint16 nonce, uint8 number);
-    event PrizeClaim(address indexed guesser, uint8 number, uint72 prizeValue);
+    event PrizeClaim(address indexed guesser, uint8 number, uint72 prizeValue, uint16 nonce);
 
     receive() external payable {
     }
@@ -32,21 +32,15 @@ contract HonestCasino is Ownable {
         // checking inputs
         require(guessNumber < 100, "$CAS1");
 
-        uint256 fee = msg.value / 101;
-        uint256 bet = msg.value - fee;
-
-        uint256 prize = bet.mul(prizeMultiplier);
+        uint256 prize = msg.value.mul(prizeMultiplier);
         require(prize <= address(this).balance / 2, "$CAS2");
         require(prize <= MAX_PRIZE, "$CAS3");
 
         nonce++;
-        emit Guess(msg.sender, uint72(bet), nonce, guessNumber);
+        emit Guess(msg.sender, uint72(msg.value), nonce, guessNumber);
 
         // placing a bet
-        guesses[msg.sender] = GuessEntry(uint72(bet), nonce, guessNumber, uint64(block.number));
-
-        // sending 1% fee to the owner
-        payable(this.owner()).transfer(fee);
+        guesses[msg.sender] = GuessEntry(uint72(msg.value), nonce, guessNumber, uint64(block.number));
     }
 
     function claimPrize(address account) external {
@@ -57,7 +51,9 @@ contract HonestCasino is Ownable {
         // checking inputs
         require(entryBet > 0, "$CAS4");
 
-        uint256 prize = entryBet * prizeMultiplier; // we already know this can't overflow
+        uint256 prizeGross = entryBet.mul(prizeMultiplier);
+        uint256 fee = prizeGross.mul(3) / 100;
+        uint256 prize = prizeGross.sub(fee);
         entry.bet = 0;
 
         // if there is not enough funds - give at least a half
@@ -76,7 +72,10 @@ contract HonestCasino is Ownable {
         uint256 randomNumber = calculateRandomNumber(entryBlockNumber, entry.nonce);
 
         if (randomNumber == uint256(entry.number)) {
-            emit PrizeClaim(account, uint8(randomNumber), uint72(prize));
+            emit PrizeClaim(account, uint8(randomNumber), uint72(prize), entry.nonce);
+
+            payable(this.owner()).transfer(fee);
+
             payable(account).transfer(prize);
         }
     }

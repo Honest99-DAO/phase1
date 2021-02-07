@@ -1,6 +1,6 @@
 import {Fragment, h} from 'preact';
 import styles from './index.scss';
-import {cls, saveWalletId, WalletId} from '~/utils/common';
+import {cls} from '~/utils/common';
 import {Button} from '~/components/Button';
 import {toast} from 'react-toastify';
 import {Icon} from '~/components/Icon';
@@ -13,6 +13,7 @@ import {useWeb3React} from '@web3-react/core';
 import {AbstractConnector} from '@web3-react/abstract-connector';
 import {injected, walletconnect} from '~/config';
 import {useState} from 'preact/hooks';
+import {saveWalletId, WalletId} from '~/utils/model';
 
 
 export function ConnectWalletPage() {

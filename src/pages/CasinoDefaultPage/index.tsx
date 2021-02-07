@@ -34,7 +34,7 @@ export function CasinoDefaultPage() {
         <p>If your guess was correct, you get <b>x{prizeMultiplier.data ? prizeMultiplier.data : 'N'}</b> of your bet
         </p>
         <p>Max prize is <b>200</b> <i>ETH</i> <br/> (but no more than a half of the prize fund)</p>
-        <p><b>1%</b> fee of each bet goes to <Link to='/dao'>phase 2</Link></p>
+        <p><b>3%</b> fee is collected per each prize claim</p>
         <p>If your guess was wrong, you lose your <i>ETH</i></p>
       </div>
 

@@ -7,6 +7,12 @@
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
+  padding-bottom: 40px;
+
+  .loader {
+    width: 50px;
+    margin-top: 50px;
+  }
 
   h2 {
     width: 100%;
@@ -51,6 +57,9 @@
 
   .btnWrapper {
     margin-top: 100px;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
 
     .loader {
       width: 50px;
@@ -58,7 +67,17 @@
 
     .btn {
       padding: 8px 15px;
-      margin-bottom: 40px;
+    }
+
+    p {
+      margin-top: 5px;
+      font-weight: lighter;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .timeLeft {
+      margin-bottom: 10px;
     }
   }
 }

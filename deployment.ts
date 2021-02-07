@@ -50,8 +50,8 @@ async function deployment(wallet: ethers.Wallet): Promise<IDeployment> {
   if (CONFIG.network == SUPPORTED_NETWORKS.DEV) {
     await wallet.sendTransaction({value: parseEther('1'), to: casino.address}).then(it => it.wait());
 
+    let fees = BigNumber.from(0);
     let wins = 0;
-
     let i = 0;
     while (wins < 5) {
       i++;
@@ -73,6 +73,8 @@ async function deployment(wallet: ethers.Wallet): Promise<IDeployment> {
       if (guess.number == guess.randomNumber) {
         wins++;
 
+        fees = fees.add(maxBetSize.mul(prizeMultiplier).mul(3).div(100));
+
         console.log(
           `Try #${i}`,
           `Prize fund before win #${wins}: ${formatEther(prizeFund)} ETH`,
@@ -80,13 +82,15 @@ async function deployment(wallet: ethers.Wallet): Promise<IDeployment> {
           `Max bet size - ${formatEther(maxBetSize)} ETH`
         );
 
-        await casino.claimPrize(wallet.address).then(it => it.wait());
+        if (wins < 5)
+          await casino.claimPrize(wallet.address).then(it => it.wait());
       }
     }
 
     const prizeFundAfter = await wallet.provider.getBalance(casino.address);
 
-    console.log(`The prize fund after ${wins} wins and ${i} guesses: ${formatEther(prizeFundAfter)}`)
+    console.log(`The prize fund after ${wins} wins and ${i} guesses: ${formatEther(prizeFundAfter)} ETH`);
+    console.log(`Total fees collected: ${formatEther(fees)} ETH`);
   }
 
   return {casino};

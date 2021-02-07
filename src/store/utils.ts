@@ -6,8 +6,7 @@ import {ExactActionCreator} from 'deox/dist/create-action-creator';
 import {IAppState} from '~/store';
 import {useDispatch, useSelector} from 'react-redux';
 import {Inputs, useEffect} from 'preact/hooks';
-import {useWallet} from 'use-wallet';
-import {providers, Signer} from 'ethers';
+import {Signer} from 'ethers';
 import {useWeb3React} from '@web3-react/core';
 
 
@@ -64,7 +63,10 @@ export function defaultAsyncStartReducer<STATE, REQ, RES>(
 ) {
   return h(actionSet.start, (state): STATE => ({
     ...state,
-    [key]: defaultAsyncState({fetching: true})
+    [key]: {
+      ...state[key],
+      ...defaultAsyncState({fetching: true})
+    }
   }));
 }
 
@@ -75,7 +77,10 @@ export function defaultAsyncSuccessReducer<STATE, REQ, RES>(
 ) {
   return h(actionSet.success, (state, action: { type: string, payload: RES }): STATE => ({
     ...state,
-    [key]: defaultAsyncState({data: action.payload})
+    [key]: {
+      ...state[key],
+      ...defaultAsyncState({data: action.payload})
+    }
   }));
 }
 
@@ -86,7 +91,10 @@ export function defaultAsyncFailReducer<STATE, REQ, RES>(
 ) {
   return h(actionSet.fail, (state, {payload: error}): STATE => ({
     ...state,
-    [key]: defaultAsyncState({error})
+    [key]: {
+      ...state[key],
+      ...defaultAsyncState({error})
+    }
   }));
 }
 

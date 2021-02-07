@@ -1,64 +1,26 @@
 import {BigNumber} from 'ethers';
-import {cls, EtherUnit, etherUnits, IClassName, JoiUnit, joiUnits, joiUnitToEtherUnit} from '~/utils/common';
-import {JSXInternal} from 'preact/src/jsx';
+import {cls, IClassName} from '~/utils/common';
 import {Input} from '~/components/Input';
 import {h} from 'preact';
 import {useState} from 'preact/hooks';
 import styles from './index.scss';
-import {parseEther, parseUnits} from 'ethers/lib/utils';
-import TargetedEvent = JSXInternal.TargetedEvent;
+import {parseEther} from 'ethers/lib/utils';
 
 
 interface IProps extends Partial<IClassName> {
-  defaultValue?: BigNumber;
+  value?: string;
+  onChange: (newValue: BigNumber) => void;
   max?: BigNumber;
   min?: BigNumber;
-  onChange?: (newValue: BigNumber) => void;
-  onUnitChange?: (newUnit: EtherUnit | JoiUnit) => void;
   placeholder?: string;
-  type?: 'eth' | 'joi';
+  label?: string;
 }
 
 
 export function AmountInput(props: IProps) {
-  const type = props.type || 'eth';
-  const units: string[] = type == 'eth' ? etherUnits() : joiUnits();
+  const [rawValue, setRawValue] = useState(props.value?.trim());
 
-  const [rawValue, setRawValue] = useState(props.defaultValue?.toString() || '');
-
-  const [currentUnit, setCurrentUnit] = useState(type == 'eth' ? EtherUnit.ETHER : JoiUnit.Joi);
-  const handleOnUnitSelect = (e: TargetedEvent<HTMLSelectElement>) => {
-    const newUnit = (e.target as HTMLSelectElement).value as JoiUnit;
-
-    setCurrentUnit(newUnit);
-    setRawValue('');
-    if (props.onChange) {
-      props.onChange(BigNumber.from(0));
-    }
-    if (props.onUnitChange) {
-      props.onUnitChange(newUnit)
-    }
-  };
-
-  const currentUnitConverted: EtherUnit = type == 'eth'
-    ? currentUnit as EtherUnit
-    : joiUnitToEtherUnit(currentUnit as JoiUnit);
-
-  const pattern = currentUnitConverted == EtherUnit.ETHER
-    ? '[0-9]+\.?[0-9]*'
-    : '[0-9]+';
-
-  const centSelect = (
-    <select
-      value={currentUnit}
-      onChange={handleOnUnitSelect}
-      className={styles.select}
-    >
-      {
-        units.map((it, idx) => <option key={idx} value={it}>{it}</option>)
-      }
-    </select>
-  );
+  const pattern = '[0-9]+\.?[0-9]*';
 
   const handleValueChange = (_newValue: string): void => {
     if (!props.onChange) return;
@@ -67,11 +29,7 @@ export function AmountInput(props: IProps) {
       const newValue = _newValue.trim() || '0';
       let parsedValue: BigNumber;
 
-      if (currentUnitConverted == EtherUnit.ETHER) {
-        parsedValue = parseEther(newValue);
-      } else {
-        parsedValue = parseUnits(newValue, currentUnitConverted);
-      }
+      parsedValue = parseEther(newValue);
 
       // validate
       if (props.max && parsedValue.gt(props.max)) return;
@@ -94,7 +52,7 @@ export function AmountInput(props: IProps) {
       onChange={handleValueChange}
       className={cls(styles.amountInput, props.className)}
       placeholder={props.placeholder}
-      icon={centSelect}
+      icon={props.label ? <span className={styles.label}>{props.label}</span> : undefined}
     />
   );
 }

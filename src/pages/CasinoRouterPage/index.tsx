@@ -12,7 +12,7 @@ import {CasinoResultPage} from '~/pages/CasinoResultPage';
 
 const tabs: ITab[] = [
   {title: 'Guess', onClickNavTo: '/casino/dashboard/guess'},
-  {title: 'Result', onClickNavTo: '/casino/dashboard/result', param: 'simple'}
+  {title: 'Result', onClickNavTo: '/casino/dashboard/result'}
 ];
 
 export function CasinoRouterPage() {
@@ -40,7 +40,7 @@ export function CasinoRouterPage() {
           render={() => <CasinoGuessPage/>}
         />
         <Route
-          path='/casino/dashboard/result/:mode'
+          path='/casino/dashboard/result'
           render={() => <CasinoResultPage/>}
         />
         <Redirect to='/404'/>

@@ -60,7 +60,8 @@
     "test": "ts-mocha --timeout 2000000 -p tsconfig-external.json test/**/*.test.ts",
     "deploy": "ts-node --project tsconfig-external.json deployment.ts",
     "dev": "parcel src/index.html --port 1234",
-    "build": "parcel build src/index.html"
+    "build": "parcel build src/index.html",
+    "typecheck": "tsc --noEmit"
   },
   "alias": {
     "react": "preact/compat",

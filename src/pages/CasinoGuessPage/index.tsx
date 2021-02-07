@@ -7,8 +7,8 @@ import {Input} from '~/components/Input';
 import {AmountInput} from '~/components/AmountInput';
 import {useState} from 'preact/hooks';
 import {Button} from '~/components/Button';
-import {formatEther, formatUnits, parseEther} from 'ethers/lib/utils';
-import {EtherUnit, randomInt, shrinkUnits} from '~/utils/common';
+import {formatEther, parseEther} from 'ethers/lib/utils';
+import {randomInt, shrinkUnits} from '~/utils/common';
 import RandomIcon from '~/public/random.svg';
 import {Icon} from '~/components/Icon';
 import {casinoActions} from '~/store/casino';
@@ -53,13 +53,6 @@ export function CasinoGuessPage() {
     setAmount(newAmount);
   };
 
-  const [unit, setUnit] = useState(EtherUnit.ETHER);
-  const amountWithFee = amount && amount.gt(0)
-    ? amount.mul(101).div(100)
-    : undefined;
-
-  const amountWithFeeStr = amountWithFee && shrinkUnits(formatUnits(amountWithFee, unit));
-
   const [number, setNumber] = useState<number | undefined>(undefined);
   const handleNumberChange = (newBet: string) => {
     if (newBet.trim()) {
@@ -85,7 +78,7 @@ export function CasinoGuessPage() {
       return;
     }
 
-    dispatch(casinoActions.makeAGuess.start({req: {number: number!, bet: amountWithFee!}, signer}));
+    dispatch(casinoActions.makeAGuess.start({req: {number: number!, bet: amount!}, signer}));
   };
 
   return (
@@ -109,14 +102,16 @@ export function CasinoGuessPage() {
 
       <div className={styles.inputWrapper}>
         <h2>Guess the number</h2>
+        <p className={styles.blocksNote}>You'll have ~1 hour (255 blocks) to claim your prize</p>
 
         <AmountInput
+          value={amount ? formatEther(amount) : ''}
+          label='ETH'
           className={styles.amountInput}
           placeholder='I bet'
           min={BigNumber.from(0)}
           max={maxBetSize}
           onChange={handleAmountChange}
-          onUnitChange={u => setUnit(u as EtherUnit)}
         />
         <p className={styles.note}>Max bet value is {shrinkUnits(formatEther(maxBetSize), 5)} ETH</p>
 
@@ -144,9 +139,6 @@ export function CasinoGuessPage() {
         >
           Make a guess
         </Button>
-        {
-          amountWithFee && <i><b>{amountWithFeeStr} {unit}</b> including fee</i>
-        }
       </div>
     </div>
   );

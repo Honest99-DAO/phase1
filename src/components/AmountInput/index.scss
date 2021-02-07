@@ -2,12 +2,13 @@
 
 
 .amountInput {
-  .select {
+  .label {
     padding: 0;
     border: none;
     font-family: $normal-font;
     font-size: 14px;
     font-style: italic;
     background-color: white;
+    color: $blue;
   }
 }
