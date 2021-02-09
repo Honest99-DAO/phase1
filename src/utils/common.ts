@@ -2,7 +2,6 @@ import {ComponentChildren} from 'preact';
 import {CONFIG, SUPPORTED_NETWORKS} from '~/config';
 import {useWeb3React} from '@web3-react/core';
 import {useEffect, useState} from 'preact/hooks';
-import {initCasino} from '~/api/casino';
 
 
 export interface IClassName {
@@ -117,7 +116,7 @@ export function useChainId(): SUPPORTED_NETWORKS {
   const [chainId, setChainId] = useState(web3React.chainId || CONFIG.chainId || undefined);
   if (!chainId) throw new Error('No chainId found in provider nor config');
 
-  let fromConfig = false;
+  const [fromConfig, setFromConfig] = useState(false);
 
   useEffect(
     () => {
@@ -127,7 +126,7 @@ export function useChainId(): SUPPORTED_NETWORKS {
           return;
         }
 
-        fromConfig = false;
+        setFromConfig(false);
         setChainId(web3React.chainId);
         console.log('Updating chainId to wallet value: ', web3React.chainId)
         return;
@@ -139,7 +138,7 @@ export function useChainId(): SUPPORTED_NETWORKS {
           return;
         }
 
-        fromConfig = true;
+        setFromConfig(true);
         setChainId(CONFIG.chainId);
         console.log('Updating chain id to config value: ', CONFIG.chainId)
         return;
@@ -147,8 +146,6 @@ export function useChainId(): SUPPORTED_NETWORKS {
     },
     [web3React.chainId]
   );
-
-  if (chainId) initCasino(chainId);
 
   return chainId;
 }

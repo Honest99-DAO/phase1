@@ -9,11 +9,11 @@ import {parseGuessFromEvent, parseWinFromEvent} from '~/utils/model';
 
 let casino: HonestCasino;
 export function initCasino(chainId: SUPPORTED_NETWORKS) {
-/*  if (casino) {
+  if (casino) {
     teardownBlockListener();
     teardownGuessesListener();
     teardownPrizeClaimsListener();
-  }*/
+  }
 
   casino = HonestCasinoFactory.connect(CONFIG.casinoContractAddress[chainId], getProvider(chainId))
 }

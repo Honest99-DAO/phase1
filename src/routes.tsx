@@ -11,6 +11,8 @@ import {injected, walletconnect} from '~/config';
 import {useEffect, useState} from 'preact/hooks';
 import {Loader} from '~/components/Loader';
 import {restoreWalletId} from '~/utils/model';
+import {useChainId} from '~/utils/common';
+import {initCasino} from '~/api/casino';
 
 
 let account: string | null | undefined;
@@ -50,6 +52,8 @@ export function Routes() {
     }
   }, [web3React.account])
 
+  const chainId = useChainId();
+  initCasino(chainId);
 
   return (
     showLoader
