@@ -1,6 +1,6 @@
 import {connectRouter, routerMiddleware, RouterState} from 'connected-react-router';
 import {all} from 'redux-saga/effects';
-import {createBrowserHistory} from 'history';
+import {createHashHistory} from 'history';
 import {applyMiddleware, combineReducers, createStore } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import {composeWithDevTools} from 'redux-devtools-extension';
@@ -20,7 +20,7 @@ function* rootSaga() {
   ]);
 }
 
-export const history = createBrowserHistory();
+export const history = createHashHistory();
 
 const rootReducer = combineReducers({
   router: connectRouter(history),
