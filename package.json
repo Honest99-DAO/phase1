@@ -56,7 +56,7 @@
     "wallet.ts": "^1.0.1"
   },
   "scripts": {
-    "generate-types": "typechain --target=ethers-v5 build/contracts/*.json",
+    "generate-types": "typechain --target=ethers-v5 build/contracts/\\*.json",
     "compile": "truffle compile && yarn generate-types",
     "test": "ts-mocha --timeout 2000000 -p tsconfig-external.json test/**/*.test.ts",
     "deploy": "ts-node --project tsconfig-external.json deployment.ts",
