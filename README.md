@@ -1,5 +1,4 @@
-## Honest Casino
-The online casino owned by its community
+![](cover.png)
 
 ### Development
 
