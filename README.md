@@ -7,7 +7,7 @@
 This project consists of the next modules:
 1. Solidity contracts inside `contracts` dir
 2. Mocha-ts tests under `test` dir
-3. Honest Casino frontend in `src`
+3. Preact frontend in `src`
 
 ### Run tests
 
