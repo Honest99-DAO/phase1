@@ -24,29 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Rhodium+Libre:wght@400&display=swap" rel="stylesheet">
     <link rel="prefetch" href="./public/nathan-anderson-xjM0j6qBPGM-unsplash.jpg">
-    <script>
-      if (window.Promise) {
-        // handling page reloading
-        window.ethereumPromise = new Promise((res) => {
-          if (window.ethereum) {
-            // this event is fired somewhere near window.onload, so we should assign a handler before this happens
-            window.ethereum.on('accountsChanged', (accounts) => {
-              if (accounts.length === 0) {
-                res(undefined);
-              } else {
-                res(window.ethereum);
-              }
 
-              window.ethereum.removeAllListeners('accountsChanged');
-            });
-          } else {
-            res(undefined);
-          }
-        })
-      } else {
-        alert('Upgrade to a newer browser!');
-      }
-    </script>
     <style>
         body {
             height: 100vh;
@@ -58,6 +36,15 @@
             background-repeat: no-repeat;
         }
     </style>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-20QXQFS495"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-20QXQFS495');
+    </script>
 </head>
 <body>
 <div id='root'></div>
