@@ -48,13 +48,19 @@ export function ConnectWalletPage() {
     await connectWallet(walletconnect, 'walletconnect');
   };
 
+  const handleOnClickHomeBtn = async () => {
+    history.push('/');
+  };
+
   const handleOnClickDisconnectWallet = async () => {
     web3React.deactivate();
     saveWalletId(null);
-  }
+  };
 
   return (
     <div className={styles.connectWalletPage}>
+      <span/>
+
       <div className={styles.content}>
         <h2>Connect your wallet</h2>
 
@@ -105,6 +111,13 @@ export function ConnectWalletPage() {
         })()
         }
       </div>
+
+      <Button
+        onClick={handleOnClickHomeBtn}
+        className={cls(styles.btn, styles.homeBtn)}
+      >
+        Back to main page
+      </Button>
     </div>
   );
 }

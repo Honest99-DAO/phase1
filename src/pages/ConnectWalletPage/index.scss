@@ -4,9 +4,9 @@
 .connectWalletPage {
   @include padded-content;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   height: 100vh;
 
   .content {
@@ -14,6 +14,7 @@
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
+    margin-top: 40px;
 
     h2 {
       font-family: $header-font;
@@ -36,5 +37,12 @@
     .loader {
       height: 50px;
     }
+  }
+
+  .homeBtn {
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    margin-bottom: 40px;
   }
 }

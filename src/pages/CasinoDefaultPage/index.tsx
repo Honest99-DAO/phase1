@@ -31,12 +31,10 @@ export function CasinoDefaultPage() {
       <h1>Casino 'Honest 99'</h1>
 
       <div className={styles.rules}>
-        <p>Bet <i>ETH</i> on any number between <b>0</b> and <b>99</b></p>
-        <p>If your guess was correct, you get <b>x{prizeMultiplier.data ? prizeMultiplier.data : 'N'}</b> of your bet
-        </p>
-        <p>Max prize is <b>200</b> <i>ETH</i> <br/> (but no more than a half of the prize fund)</p>
-        <p><b>3%</b> fee is collected per each prize claim</p>
-        <p>If your guess was wrong, you lose your <i>ETH</i></p>
+        <p>Choose a number between <b>0</b> and <b>99</b> and place a bid in <i>ETH</i></p>
+        <p>If your guess was correct, get <b>x{prizeMultiplier.data ? prizeMultiplier.data : 'N'}</b> of your bid</p>
+        <p>Can't win more than <b>200</b> <i>ETH</i> <br/> or more than a half of the prize fund</p>
+        <p><b>3%</b> fee per each prize is kept</p>
       </div>
 
       <p>
