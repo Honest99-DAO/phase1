@@ -24,7 +24,7 @@ export const CONFIG: IConfig = {
   casinoContractAddress: {
     [SUPPORTED_NETWORKS.DEV]: '0xb7E503c42DaCfC9189d8B2e50Ff47Fcc22aA3b5c',
     [SUPPORTED_NETWORKS.KOVAN]: '0x3EAbdCFd8DbD4e0569ca695A7098ce3AB3d9f5b5',
-    [SUPPORTED_NETWORKS.MAINNET]: ''
+    [SUPPORTED_NETWORKS.MAINNET]: '0x952E377BD52E35A507d87259658Cf424390a65f7'
   },
   mainGithubUrl: 'https://github.com/Casino-Honest-99/phase1',
   discussionUrl: 'https://twitter.com/Joinu9'

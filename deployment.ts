@@ -6,8 +6,8 @@ import {mnemonicToSeed} from 'bip39';
 import {ethers} from 'ethers';
 import Web3 from 'web3';
 import {HonestCasino, HonestCasinoFactory} from './types/ethers-contracts';
-import {formatEther, parseEther} from 'ethers/lib/utils';
-import {CONFIG, RPCs, SUPPORTED_NETWORKS} from './src/config';
+import {formatEther, parseUnits} from 'ethers/lib/utils';
+import {CONFIG, RPCs} from './src/config';
 
 
 async function createAdminWallets(mnemonic: string | undefined): Promise<HDKey[]> {
@@ -41,17 +41,13 @@ async function deployment(wallet: ethers.Wallet): Promise<IDeployment> {
   console.log('Deployment started');
   console.log(CONFIG.chainId, RPCs[CONFIG.chainId], wallet.address);
 
-  const gasPrice = await wallet.provider.getGasPrice();
+  const gasPrice = parseUnits('100', 'gwei');
 
   const casinoFactory = new HonestCasinoFactory(wallet);
   const casino = await casinoFactory.deploy().then(it => it.deployed());
   const rec2 = await casino.deployTransaction.wait();
   console.log(`Casino contract deployed (${formatEther(rec2.gasUsed.mul(gasPrice))} ETH gas used)`, casino.address);
   console.log(`Casino's owner is: ${wallet.address}`);
-
-  if (CONFIG.chainId == SUPPORTED_NETWORKS.DEV) {
-    await wallet.sendTransaction({to: '0xd1873EAE6cD81EE44bcF56C80f2376F59989AE47', value: parseEther('100')})
-  }
 
   return {casino};
 }
