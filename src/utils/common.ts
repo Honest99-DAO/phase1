@@ -1,7 +1,7 @@
 import {ComponentChildren} from 'preact';
-import {CONFIG, SUPPORTED_NETWORKS} from '~/config';
-import {useWeb3React} from '@web3-react/core';
-import {useEffect, useState} from 'preact/hooks';
+import {SUPPORTED_NETWORKS} from '~/config';
+import {useSelector} from 'react-redux';
+import {IAppState} from '~/store';
 
 
 export interface IClassName {
@@ -112,40 +112,5 @@ export class Channel<T> {
 }
 
 export function useChainId(): SUPPORTED_NETWORKS {
-  const web3React = useWeb3React();
-  const [chainId, setChainId] = useState(web3React.chainId || CONFIG.chainId || undefined);
-  if (!chainId) throw new Error('No chainId found in provider nor config');
-
-  const [fromConfig, setFromConfig] = useState(false);
-
-  useEffect(
-    () => {
-      if (web3React.chainId) {
-        if (chainId && !fromConfig && chainId != web3React.chainId) {
-          window.location.reload();
-          return;
-        }
-
-        setFromConfig(false);
-        setChainId(web3React.chainId);
-        console.log('Updating chainId to wallet value: ', web3React.chainId)
-        return;
-      }
-
-      if (CONFIG.chainId) {
-        if (chainId && chainId != CONFIG.chainId) {
-          window.location.reload();
-          return;
-        }
-
-        setFromConfig(true);
-        setChainId(CONFIG.chainId);
-        console.log('Updating chain id to config value: ', CONFIG.chainId)
-        return;
-      }
-    },
-    [web3React.chainId]
-  );
-
-  return chainId;
+  return useSelector((state: IAppState) => state.casino.chainId);
 }

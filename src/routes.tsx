@@ -7,12 +7,14 @@ import {CasinoDefaultPage} from '~/pages/CasinoDefaultPage';
 import {ConnectWalletPage} from '~/pages/ConnectWalletPage';
 import {useWeb3React} from '@web3-react/core';
 import {Signer} from 'ethers';
-import {injected, walletconnect} from '~/config';
+import {CONFIG, injected, walletconnect} from '~/config';
 import {useEffect, useState} from 'preact/hooks';
 import {Loader} from '~/components/Loader';
 import {restoreWalletId} from '~/utils/model';
-import {useChainId} from '~/utils/common';
-import {initCasino} from '~/api/casino';
+import {reInitCasino} from '~/api/casino';
+import {useSigner} from '~/store/utils';
+import {useDispatch} from 'react-redux';
+import {casinoActions} from '~/store/casino';
 
 
 let account: string | null | undefined;
@@ -50,10 +52,22 @@ export function Routes() {
       if (!account) account = web3React.account;
       else if (account != web3React.account) window.location.reload();
     }
-  }, [web3React.account])
+  }, [web3React.account]);
 
-  const chainId = useChainId();
-  initCasino(chainId);
+  const dispatch = useDispatch();
+  const signer = useSigner();
+
+  useEffect(() => {
+    if (web3React.chainId) {
+      dispatch(casinoActions.updateChainId(web3React.chainId));
+
+      console.log('Working with user provider');
+      reInitCasino(web3React.chainId, signer);
+    } else {
+      console.log('Working with default provider');
+      reInitCasino(CONFIG.chainId!, null);
+    }
+  }, [web3React.chainId, signer]);
 
   return (
     showLoader

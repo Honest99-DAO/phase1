@@ -8,7 +8,7 @@ import {
 } from '~/store/utils';
 import {BigNumber, ContractTransaction, Signer} from 'ethers';
 import {Action, createActionCreator, createReducer, getType} from 'deox';
-import {call, put, takeLatest} from 'redux-saga/effects';
+import {call, put, select, takeLatest} from 'redux-saga/effects';
 import {
   BlockNumberChannel,
   claimReward,
@@ -30,6 +30,8 @@ import {
 import {toast} from 'react-toastify';
 import {push} from 'connected-react-router';
 import {parseGuess} from '~/utils/model';
+import {CONFIG, SUPPORTED_NETWORKS} from '~/config';
+import {IAppState} from '~/store';
 
 
 export interface ICasinoGuessReq {
@@ -61,6 +63,9 @@ export interface ICasinoGuessReqExt {
 }
 
 export interface ICasinoState {
+  chainId: SUPPORTED_NETWORKS;
+  chainId_fromConfig: boolean;
+
   prizeFund: IAsyncState<BigNumber>;
   guessesToday: IAsyncState<number>;
   recentWinners: IAsyncState<ICasinoWinEvent[]>;
@@ -76,6 +81,9 @@ export interface ICasinoState {
 }
 
 export const defaultCasinoState: ICasinoState = {
+  chainId: CONFIG.chainId || (() => {throw new Error('ChainId is not set in config')}) as unknown as SUPPORTED_NETWORKS,
+  chainId_fromConfig: true,
+
   prizeFund: defaultAsyncState(),
   guessesToday: defaultAsyncState(),
   recentWinners: defaultAsyncState(),
@@ -92,6 +100,10 @@ export const defaultCasinoState: ICasinoState = {
 };
 
 export const casinoActions = {
+  setChainId: createActionCreator('chain-id/set', r => (it: SUPPORTED_NETWORKS) => r(it)),
+  setChainId_fromConfig: createActionCreator('chain-id/from-config/set', r => (it: boolean) => r(it)),
+  updateChainId: createActionCreator('chain-id/update', r => (it: SUPPORTED_NETWORKS) => r(it)),
+
   getPrizeFund: createAsyncActionCreator<void, BigNumber>('casino/get-prize-fund'),
   getGuessesToday: createAsyncActionCreator<void, number>('casino/get-guesses-today'),
   incGuessesToday: createActionCreator('casino/inc-guesses-today'),
@@ -108,6 +120,16 @@ export const casinoActions = {
 };
 
 export const casinoReducer = createReducer(defaultCasinoState, h => [
+  h(casinoActions.setChainId, (state: ICasinoState, action: Action<string, SUPPORTED_NETWORKS>): ICasinoState => ({
+    ...state,
+    chainId: action.payload
+  })),
+
+  h(casinoActions.setChainId_fromConfig, (state: ICasinoState, action: Action<string, boolean>): ICasinoState => ({
+    ...state,
+    chainId_fromConfig: action.payload
+  })),
+
   ...defaultAsyncReducer(h, casinoActions.getPrizeFund, 'prizeFund'),
   ...defaultAsyncReducer(h, casinoActions.getGuessesToday, 'guessesToday'),
   h(casinoActions.incGuessesToday, (state: ICasinoState): ICasinoState => ({
@@ -124,7 +146,7 @@ export const casinoReducer = createReducer(defaultCasinoState, h => [
   ...defaultAsyncReducer(h, casinoActions.getCurrentBlockNumber, 'currentBlockNumber'),
 
   ...[
-    h(casinoActions.makeAGuess.start, (state, action: { type: string, payload: ICasinoGuessReqExt }): ICasinoState => ({
+    h(casinoActions.makeAGuess.start, (state, action: Action<string, ICasinoGuessReqExt>): ICasinoState => ({
       ...state,
       guess: {
         ...defaultAsyncState({fetching: true}),
@@ -138,9 +160,24 @@ export const casinoReducer = createReducer(defaultCasinoState, h => [
 ]);
 
 
+function* updateChainIdSaga(action: Action<string, SUPPORTED_NETWORKS>) {
+  const chainId = action.payload;
+  const prevChainId = yield select((state: IAppState) => state.casino.chainId);
+  const fromConfig = yield select((state: IAppState) => state.casino.chainId_fromConfig);
+
+    if (!fromConfig && chainId != prevChainId) {
+      window.location.reload();
+    } else {
+      yield put(casinoActions.setChainId_fromConfig(false));
+      yield put(casinoActions.setChainId(chainId));
+
+      console.log('Updating chainId to:', chainId)
+    }
+}
+
 function* getCasinoPrizeFundSaga() {
   yield defaultAsyncSaga(casinoActions.getPrizeFund, getPrizeFund);
-  setupBlockListener();
+  yield call(setupBlockListener);
 
   const read = PrizeFundChannel.read();
 
@@ -152,7 +189,7 @@ function* getCasinoPrizeFundSaga() {
 
 function* getPrizeMultiplierSaga() {
   yield defaultAsyncSaga(casinoActions.getPrizeMultiplier, getPrizeMultiplier);
-  setupBlockListener();
+  yield call(setupBlockListener);
 
   const read = PrizeMultiplierChannel.read();
 
@@ -164,7 +201,7 @@ function* getPrizeMultiplierSaga() {
 
 function* getCurrentBlockNumberSaga() {
   yield defaultAsyncSaga(casinoActions.getCurrentBlockNumber, getCurrentBlockNumber);
-  setupBlockListener();
+  yield call(setupBlockListener);
 
   const read = BlockNumberChannel.read();
 
@@ -176,7 +213,7 @@ function* getCurrentBlockNumberSaga() {
 
 function* getGuessesTodaySaga() {
   yield defaultAsyncSaga(casinoActions.getGuessesToday, getGuessesToday);
-  setupGuessesListener();
+  yield call(setupGuessesListener);
 
   const read = GuessesChannel.read();
 
@@ -188,7 +225,7 @@ function* getGuessesTodaySaga() {
 
 function* getMyRecentGuessSaga(action: Action<string, Signer>) {
   yield defaultAsyncSaga(casinoActions.getMyRecentGuess, () => getMyRecentGuess(action.payload));
-  setupGuessesListener();
+  yield call(setupGuessesListener);
 
   const read = GuessesChannel.read();
   const address = yield call(() => action.payload.getAddress());
@@ -204,7 +241,7 @@ function* getMyRecentGuessSaga(action: Action<string, Signer>) {
 
 function* getRecentWinnersSaga() {
   yield defaultAsyncSaga(casinoActions.getRecentWinners, getRecentWinners);
-  setupPrizeClaimsListener();
+  yield call(setupPrizeClaimsListener);
 
   const read = PrizeClaimsChannel.read();
 
@@ -216,7 +253,7 @@ function* getRecentWinnersSaga() {
 
 function* getMyRecentWinSaga(action: Action<string, Signer>) {
   yield defaultAsyncSaga(casinoActions.getMyRecentWin, () => getMyRecentWin(action.payload));
-  setupPrizeClaimsListener();
+  yield call(setupPrizeClaimsListener);
 
   const read = PrizeClaimsChannel.read();
   const address: string = yield call(() => action.payload.getAddress());
@@ -261,6 +298,7 @@ function* claimRewardSaga(action: Action<string, Signer>) {
 }
 
 export const casinoStateSagasConfig = [
+  takeLatest(getType(casinoActions.updateChainId), updateChainIdSaga),
   takeLatest(getType(casinoActions.getPrizeFund.start), getCasinoPrizeFundSaga),
   takeLatest(getType(casinoActions.getGuessesToday.start), getGuessesTodaySaga),
   takeLatest(getType(casinoActions.getRecentWinners.start), getRecentWinnersSaga),

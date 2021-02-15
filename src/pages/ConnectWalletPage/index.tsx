@@ -55,6 +55,7 @@ export function ConnectWalletPage() {
   const handleOnClickDisconnectWallet = async () => {
     web3React.deactivate();
     saveWalletId(null);
+    window.location.reload();
   };
 
   return (

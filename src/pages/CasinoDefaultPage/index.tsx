@@ -32,7 +32,7 @@ export function CasinoDefaultPage() {
 
       <div className={styles.rules}>
         <p>Choose a number between <b>0</b> and <b>99</b> and place a bid in <i>ETH</i></p>
-        <p>If your guess was correct, get <b>x{prizeMultiplier.data ? prizeMultiplier.data : 'N'}</b> of your bid</p>
+        <p>If your guess was correct, get <b>x{prizeMultiplier.data ? prizeMultiplier.data : '66'}</b> of your bid</p>
         <p>Can't win more than <b>200</b> <i>ETH</i> <br/> or more than a half of the prize fund</p>
         <p><b>3%</b> fee per each prize is kept</p>
       </div>
